@@ -1,10 +1,15 @@
 <?php
 
 /**
- * Joomla! Content Management System
- *
- * @copyright  (C) 2020 Open Source Matters, Inc. <https://www.joomla.org>
- * @license    GNU General Public License version 2 or later; see LICENSE.txt
+ * Based On libraries/src/Console/ExtensionInstallCommand.php 
+ * from the Joomla! Content Management System
+ * (C) 2020 Open Source Matters, Inc. <https://www.joomla.org>
+ * GNU General Public License version 2 or later; see LICENSE.txt
+ * 
+ * @version   24.51
+ * @author    Bram <bram@brokenlinkchecker.dev>
+ * @copyright 2024 Bram Brambring (https://brambring.nl)
+ * @license   GNU General Public License version 3 or later;
  */
 
 namespace Brambring\Plugin\System\Extensiontools\Console;
@@ -175,13 +180,14 @@ class ExtensionUpdateCommand extends AbstractCommand
     private function updataAll(): bool
     {
 
-        $this->getUpdates(true);
+
         $plugin =  Factory::getApplication()->bootPlugin('extensiontools', 'system');
         $allowedExtensions = $plugin->params->get('allowedExtensions', []);
         if (\count($allowedExtensions) == 0) {
             $this->ioStyle->caution('No extensions allowed for automatic updates');
             return false;
         }
+        $this->getUpdates(true);
         foreach ($this->updateList as $update) {
             //Joomla core should not show up here. Just to be sure
             if ($this->isJoomlaCore($update->extension_id)) {
@@ -266,18 +272,19 @@ $container->alias('session.web', 'session.web.administrator')
         $model  = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
         Factory::$application = $app;
 
-  
+
         $model->update([$uid]);
         $result = $model->getState('result');
         if ($result) {
-            $this->successInfo[] =$this->updateTwoRow($update);
+            $this->successInfo[] = $this->updateTwoRow($update);
         } else {
-            $this->failInfo[] =$this->updateTwoRow($update);
+            $this->failInfo[] = $this->updateTwoRow($update);
         }
         Factory::$application = $CLIApp;
         return $result;
     }
-    private function updateTwoRow($update) {
+    private function updateTwoRow($update)
+    {
         return    [
             $update->extension_id,
             $update->name,

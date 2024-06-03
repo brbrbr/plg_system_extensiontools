@@ -1,9 +1,8 @@
 <?php
 
 /**
- * @package     Brambring.Plugin
- * @subpackage  System.Extensiontools
- * @version    24.02.01
+ * @package  System.Extensiontools
+ * @version    24.51
  * @copyright  2024 Bram Brambring
  * @license    GNU General Public License version 3 or later;
  */

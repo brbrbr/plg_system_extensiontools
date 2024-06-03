@@ -7,7 +7,7 @@
   <license>GNU General Public License version 3 or later</license>
   <authorEmail>bram@brambring.nl</authorEmail>
   <authorUrl>https://brambring.nl</authorUrl>
-  <version>24.51</version>
+  <version>24.51.01</version>
   <description>PLG_SYSTEM_EXTENSIONTOOLS_XML_DESCRIPTION</description>
   <namespace path="src">Brambring\Plugin\System\Extensiontools</namespace>
   <scriptfile>script.php</scriptfile>
@@ -17,17 +17,14 @@
   </files>
   <languages>
     <language tag="en-GB">language/en-GB/plg_system_extensiontools.sys.ini</language>
+    <language tag="en-GB">language/en-GB/plg_system_extensiontools.ini</language>
   </languages>
   <config >
-
     <fields name="params" addfieldprefix="Brambring\Plugin\System\Extensiontools\Field">
       <fieldset name="basic">
-
-        <field name="allowedExtensions" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_DESC">
-        </field>
-      
-
-  	<field name="d" type="hidden" value="dummy" multiple="true" required="false" />
+        <field name="allowedExtensions" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_DESC"/>
+        <!-- a dummy is required otherwise you can't clear the allowedExtensions list-->
+        <field name="d" type="hidden" value="dummy" multiple="true" required="false" />
 
       </fieldset>
     </fields>

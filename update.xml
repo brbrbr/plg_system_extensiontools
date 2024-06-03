@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<updates>
+	<update>
+		<name>System - Extension Tools</name>
+		<description>Extension Tool Plugin. Allows updating extensions from CLI and Scheduled Tasks</description>
+		<element>extensionupdates</element>
+		<type>plugin</type>
+		<folder>task</folder>
+		<client>site</client>
+		<version>24.51.01</version>
+		<infourl title="ExtensionUpdates Plugin">https://github.com/brbrbr/plg_system_extensiontools</infourl>
+		<downloads>
+			<downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/24.51.01/plg_system_extensiontools.zip</downloadurl>
+		</downloads>
+		<sha512>c44d5f760cfc9ce892c232fcd6c37eca262c0610b208debc11a948d83f442c1478137becb9a7c98b67bfadfb7e04527d285730ea9fd4fe4ddcaa5e0a94255406</sha512>
+		<tags>
+			<tag>stable</tag>
+		</tags>
+		<maintainer>Bram Brambring</maintainer>
+		
+		<maintainerurl>https://brokenlinkchecker.dev</maintainerurl>
+		<php_minimum>8.1.0</php_minimum>
+		<targetplatform name="joomla" version="5.(1|2)"/>
+	</update>
+</updates>

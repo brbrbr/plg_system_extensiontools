@@ -1,13 +1,10 @@
 <?php
 
 /**
- * @package         Regular Labs Library
- * @version         24.44
- *
- * @author          Peter van Westen <info@regularlabs.com>
- * @link            https://regularlabs.com
- * @copyright       Copyright © 2023 Regular Labs All Rights Reserved
- * @license         GNU General Public License version 2 or later
+ * @package  System.Extensiontools
+ * @version    24.51
+ * @copyright  2024 Bram Brambring
+ * @license    GNU General Public License version 3 or later;
  */
 
 namespace Brambring\Plugin\System\Extensiontools\Field;
@@ -17,7 +14,6 @@ namespace Brambring\Plugin\System\Extensiontools\Field;
 // phpcs:enable PSR1.Files.SideEffects
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\Form\Field\ListField;
 
 
