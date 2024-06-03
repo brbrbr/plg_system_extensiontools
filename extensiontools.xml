@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="plugin" group="system" method="upgrade">
+  <name>plg_system_extensiontools</name>
+  <author>Bram Brambring</author>
+  <creationDate>03-06-2024</creationDate>
+  <copyright>(C) 2024 Bram Brambring</copyright>
+  <license>GNU General Public License version 3 or later</license>
+  <authorEmail>bram@brambring.nl</authorEmail>
+  <authorUrl>https://brambring.nl</authorUrl>
+  <version>24.51</version>
+  <description>PLG_SYSTEM_EXTENSIONTOOLS_XML_DESCRIPTION</description>
+  <namespace path="src">Brambring\Plugin\System\Extensiontools</namespace>
+  <scriptfile>script.php</scriptfile>
+  <files>
+    <folder plugin="extensiontools">services</folder>
+    <folder>src</folder>
+  </files>
+  <languages>
+    <language tag="en-GB">language/en-GB/plg_system_extensiontools.sys.ini</language>
+  </languages>
+  <config >
+
+    <fields name="params" addfieldprefix="Brambring\Plugin\System\Extensiontools\Field">
+      <fieldset name="basic">
+
+        <field name="allowedExtensions" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_DESC">
+        </field>
+      
+
+  	<field name="d" type="hidden" value="dummy" multiple="true" required="false" />
+
+      </fieldset>
+    </fields>
+  </config>
+  <updateservers>
+    <server name="brambring.nl" type="extension">https://downloads.brokenlinkchecker.dev/plg_system_extensiontools.xml</server>
+  </updateservers>
+</extension>
