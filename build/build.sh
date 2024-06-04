@@ -8,7 +8,7 @@ if [ -f "$EXTENSION_ZIP_FILENAME" ]; then rm $EXTENSION_ZIP_FILENAME; fi
 sed -i -e "s/\(<version>\).*\(<\/version>\)/<version>$VERSION<\/version>/g" $EXTENSION_ELEMENT.xml
 sed -i -e "s/[0-9]\+\.[0-9]\+\.[0-9]\+/$VERSION/g" release.sh
 
-zip -r $EXTENSION_ZIP_FILENAME language/ "$EXTENSION_ELEMENT.xml"  services/ src/ script.php --quiet
+zip -r $EXTENSION_ZIP_FILENAME language/ "$EXTENSION_ELEMENT.xml"  services/ forms/ src/ script.php --quiet
 SHA512=$(sha512sum $EXTENSION_ZIP_FILENAME | awk '{print $1}')
 sed -i -e "s/\(<sha512>\).*\(<\/sha512>\)/<sha512>$SHA512<\/sha512>/g"  \
  -e "s/\(<version>\).*\(<\/version>\)/<version>$VERSION<\/version>/g" \

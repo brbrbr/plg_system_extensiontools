@@ -47,6 +47,7 @@ class ExtensionUpdateCommand extends AbstractCommand
     private $successInfo = [];
     private $failInfo = [];
     private $skipInfo = [];
+    private $allowedExtension = Null;
 
     /**
      * Stores the Input Object
@@ -153,6 +154,7 @@ class ExtensionUpdateCommand extends AbstractCommand
 
         return $result;
     }
+
     private function isValidUpdate(string $field, int $value): \stdClass|bool
     {
 
@@ -177,25 +179,83 @@ class ExtensionUpdateCommand extends AbstractCommand
         return  in_array($eid, $coreExtensionIds);
     }
 
-    private function updataAll(): bool
+
+    private function IsAllowedToUpdate(object $update): bool
     {
-
-
         $plugin =  Factory::getApplication()->bootPlugin('extensiontools', 'system');
-        $allowedExtensions = $plugin->params->get('allowedExtensions', []);
-        if (\count($allowedExtensions) == 0) {
-            $this->ioStyle->caution('No extensions allowed for automatic updates');
+        if ($this->allowedExtension === null) {
+            $this->allowedExtension['all'] = $plugin->params->get('allowedAll', []);
+            $this->allowedExtension['minor'] = $plugin->params->get('allowedMinor', []);
+            $this->allowedExtension['patch'] = $plugin->params->get('allowedPatch', []);
+            if (
+                \count($this->allowedExtension['all']) == 0
+                &&
+                \count($this->allowedExtension['minor']) == 0
+                &&
+                \count($this->allowedExtension['patch']) == 0
+
+            ) {
+                $this->ioStyle->caution('No extensions allowed for automatic updates');
+            }
+        }
+
+        if (in_array($update->extension_id, $this->allowedExtension['all'])) {
+            return true;
+        }
+
+        $currentVersion = explode('.', $update->current_version);
+        $newVersion = explode('.', $update->version);
+           //count may differ 2.0.0 -> 2.0.0.1
+        if (
+            \count($currentVersion) == 1
+            ||  \count($newVersion) == 1
+        ) {
+            //no minor version 
+         
             return false;
         }
+        if ($currentVersion[0] != $newVersion[0]) {
+            return false;
+        }
+
+
+        if (in_array($update->extension_id, $this->allowedExtension['minor'])) {
+            return true;
+        }
+
+        if ($currentVersion[1] != $newVersion[1]) {
+            return false;
+        }
+
+
+        if (
+            \count($currentVersion) < 3
+            || \count($newVersion) < 3
+        ) {
+            //no patch level 
+
+            return false;
+        }
+
+        if (in_array($update->extension_id, $this->allowedExtension['patch'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function updataAll(): bool
+    {
         $this->getUpdates(true);
         foreach ($this->updateList as $update) {
             //Joomla core should not show up here. Just to be sure
             if ($this->isJoomlaCore($update->extension_id)) {
-                $this->skipInfo[] = $this->updateTwoRow($update);
+                $this->skipInfo[] = $this->updateToRow($update);
                 continue;
             }
-            if (!in_array($update->extension_id, $allowedExtensions)) {
-                $this->skipInfo[] = $this->updateTwoRow($update);
+
+            if (!$this->IsAllowedToUpdate($update)) {
+                $this->skipInfo[] = $this->updateToRow($update);
                 continue;
             }
 
@@ -203,6 +263,7 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         return true;
     }
+
     private function showUpdateResutls()
     {
         if (\count($this->successInfo)) {
@@ -211,8 +272,8 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
 
         if (\count($this->skipInfo)) {
-            $this->ioStyle->warning('Skipped updates (auto update not enabled)');
-            $this->ioStyle->table(['Extension ID', 'Name', 'Location', 'Type', 'Old Version', 'Installed', 'Folder'], $this->skipInfo);
+            $this->ioStyle->warning('Skipped updates (auto update not allowed)');
+            $this->ioStyle->table(['Extension ID', 'Name', 'Location', 'Type', 'Old Version', 'Available', 'Folder'], $this->skipInfo);
         }
 
         if (\count($this->failInfo)) {
@@ -239,7 +300,9 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         return  $this->updateList;
     }
-
+//an other approach would be to get the download URL from the update
+//then execute the trigger for download keys etc
+//then use processUrlInstallation
     private function updateUID($update): bool
     {
         $uid = $update->update_id ?? false;
@@ -247,43 +310,25 @@ class ExtensionUpdateCommand extends AbstractCommand
             $this->ioStyle->error('Invalid update');
             return false;
         }
+        //THe cli application will not install. So boot a AdministratorApplication
         $container = \Joomla\CMS\Factory::getContainer();
-
-        /*
- * Alias the session service keys to the web session service as that is the primary session backend for this application
- *
- * In addition to aliasing "common" service keys, we also create aliases for the PHP classes to ensure autowiring objects
- * is supported.  This includes aliases for aliased class names, and the keys for aliased class names should be considered
- * deprecated to be removed when the class name alias is removed as well.
- */
-        /*
-$container->alias('session.web', 'session.web.administrator')
-    ->alias('session', 'session.web.administrator')
-    ->alias('JSession', 'session.web.administrator')
-    ->alias(\Joomla\CMS\Session\Session::class, 'session.web.administrator')
-    ->alias(\Joomla\Session\Session::class, 'session.web.administrator')
-    ->alias(\Joomla\Session\SessionInterface::class, 'session.web.administrator');
-	     */
-
-        // Instantiate the application.
         $CLIApp = Factory::getApplication();
         $app = $container->get(\Joomla\CMS\Application\AdministratorApplication::class);
         $mvcFactory = $app->bootComponent('com_installer')->getMVCFactory();
         $model  = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
         Factory::$application = $app;
 
-
         $model->update([$uid]);
         $result = $model->getState('result');
         if ($result) {
-            $this->successInfo[] = $this->updateTwoRow($update);
+            $this->successInfo[] = $this->updateToRow($update);
         } else {
-            $this->failInfo[] = $this->updateTwoRow($update);
+            $this->failInfo[] = $this->updateToRow($update);
         }
         Factory::$application = $CLIApp;
         return $result;
     }
-    private function updateTwoRow($update)
+    private function updateToRow($update)
     {
         return    [
             $update->extension_id,
@@ -299,8 +344,6 @@ $container->alias('session.web', 'session.web.administrator')
 
     public function processEIDInstallation(int $eid): bool
     {
-
-
         $uid = $this->isValidUpdate('extension_id', $eid);
         if ($uid === false) {
             $this->ioStyle->error('There is no update for this Extension ID');
@@ -338,7 +381,6 @@ $container->alias('session.web', 'session.web.administrator')
         $jInstaller = new Installer();
         $result     = $jInstaller->install($package['extractdir']);
         InstallerHelper::cleanupInstall($path, $package['extractdir']);
-
         return $result;
     }
 
