@@ -52,8 +52,13 @@ Most extensions use semantic versioning, given a version number MAJOR.MINOR.PATC
 1. MAJOR version might have incompatible API changes
 2. MINOR version should add functionality in a backward compatible manner
 3. PATCH version has backward compatible bug fixes
-Additional labels for pre-release and build metadata might be affred as extensions to the MAJOR.MINOR.PATCH format.
+
 
 The Joomla extension update system does not distinguish between major, minor or patch updates. 
 
-For automoatuc updates you can select the level to allow auto-updates for. Updating on patch level should be safe, on minor level safe enough. Major updates are probably best done manually.
+For automatic updates you can select the level to allow auto-updates for. 
+
+Updating on patch level should be safe, on minor level safe enough. Major updates are probably best done manually.
+
+
+Additional labels for pre-release and build metadata might be added as suffixes to the MAJOR.MINOR.PATCH format. These are not considered by the plugin.
