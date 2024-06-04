@@ -11,27 +11,31 @@
   <description>PLG_SYSTEM_EXTENSIONTOOLS_XML_DESCRIPTION</description>
   <namespace path="src">Brambring\Plugin\System\Extensiontools</namespace>
   <scriptfile>script.php</scriptfile>
+  <languages folder="language">
+    <language tag="de-DE">de-DE/plg_system_extensiontools.ini</language>
+    <language tag="de-DE">de-DE/plg_system_extensiontools.sys.ini</language>
+    <language tag="en-GB">en-GB/plg_system_extensiontools.ini</language>
+    <language tag="en-GB">en-GB/plg_system_extensiontools.sys.ini</language>
+    <language tag="nl-NL">nl-NL/plg_system_extensiontools.ini</language>
+    <language tag="nl-NL">nl-NL/plg_system_extensiontools.sys.ini</language>
+  </languages>
   <files>
     <folder plugin="extensiontools">services</folder>
     <folder>src</folder>
-      <folder>forms</folder>
+    <folder>forms</folder>
   </files>
-  <languages>
-    <language tag="en-GB">language/en-GB/plg_system_extensiontools.sys.ini</language>
-    <language tag="en-GB">language/en-GB/plg_system_extensiontools.ini</language>
-  </languages>
-  <config >
+  <config>
     <fields name="params" addfieldprefix="Brambring\Plugin\System\Extensiontools\Field">
       <fieldset name="basic">
         <field name="allowedAll" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_DESC"/>
-          <field name="allowedMinor" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_MINOR" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_MINOR_DESC"/>
-                <field name="allowedPatch" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_PATCH" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_PATCH_DESC"/>
+        <field name="allowedMinor" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_MINOR" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_MINOR_DESC"/>
+        <field name="allowedPatch" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_PATCH" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_PATCH_DESC"/>
         <!-- a dummy is required otherwise you can't clear the allowedExtensions list-->
-        <field name="d" type="hidden" value="dummy" multiple="true" required="false" />
+        <field name="d" type="hidden" value="dummy" multiple="true" required="false"/>
       </fieldset>
     </fields>
   </config>
- <updateservers>
-		<server type="extension" name="Extension Tools Update Site">https://raw.githubusercontent.com/brbrbr/plg_system_extensiontools/master/update.xml</server>
-	</updateservers>
+  <updateservers>
+    <server type="extension" name="Extension Tools Update Site">https://raw.githubusercontent.com/brbrbr/plg_system_extensiontools/master/update.xml</server>
+  </updateservers>
 </extension>
