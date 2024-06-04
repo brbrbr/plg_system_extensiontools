@@ -1,9 +1,12 @@
 # Extension Tools
 
-- This Joomla plugin checks for updates of extensions & Joomla! Core and sends an email once available.
-- Update Extensions from the CLI
-- Auto update selected Extensions from the CLI
-- Upcoming : Auto update selected Extensions from the Scheduled Tasks
+- Scheduled Tasks
+-- Check for updates of extensions & Joomla! Core and sends an email when available.
+-- Upcoming : Auto update (configured) Extensions.
+- CLI
+-- Update Extensions using the information from the update server, just as when using the **Administrator** → **Extensions: Update**.
+-- Auto update (configured) Extensions from the CLI
+
 
 ## Installation
 
@@ -33,11 +36,24 @@
  - to update an extension from a different source you use the options `--path` and `--url` which are identical to using them with `extension:install`
 
  ### Auto Update Extensions
- - go to the plugin settings page an select the extensions you want to enable auto updates for. You can select for Major,minor or patch update
+ - go to the plugin settings page an select the extensions you want to enable auto updates for. You can select for Major,minor or patch updates. See [Semantic versioning](#semantic-versioning)
  - now use `php joomla.php update:extensions:update --all` to update extension with a new version
 
- #### Is it wise to auto update?
+ ### Is it wise to auto update?
 
- Any change in an extension might break your site, which might be unnoticed with automatic updates. The Joomla extension update system does not distinguish between major and minor updates. However in the plugin configuration you can select the level to allow auto-updates for. Updating on patch level should be safe, on minor level safe enough.
+ Any change in an extension might break your site, which might be unnoticed with automatic updates. 
 
- In general automaticity updating extensions like language packs, editors and administrator tools like a backup should be save. Updating extensions with a lot of overrides on your site is maybe not wise.
+ In general automaticity updating extensions like language packs, editors and administrator tools like a backup-system should be save, as they most likely will not instantly kill your frontend when misconfigured. Updating extensions with a lot of overrides on your site is maybe not wise. Use your common sense for everything in between.
+
+
+#### Semantic versioning.
+Most extensions use semantic versioning, given a version number MAJOR.MINOR.PATCH, increment the:
+
+1. MAJOR version might have incompatible API changes
+2. MINOR version should add functionality in a backward compatible manner
+3. PATCH version has backward compatible bug fixes
+Additional labels for pre-release and build metadata might be affred as extensions to the MAJOR.MINOR.PATCH format.
+
+The Joomla extension update system does not distinguish between major, minor or patch updates. 
+
+For automoatuc updates you can select the level to allow auto-updates for. Updating on patch level should be safe, on minor level safe enough. Major updates are probably best done manually.
