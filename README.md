@@ -1,11 +1,11 @@
 # Extension Tools
 
 - Scheduled Tasks
--- Check for updates of extensions & Joomla! Core and sends an email when available.
--- Upcoming : Auto update (configured) Extensions.
+    - Check for updates of extensions & Joomla! Core and sends an email when available.
+    - Upcoming : Auto update (configured) Extensions.
 - CLI
--- Update Extensions using the information from the update server, just as when using the **Administrator** → **Extensions: Update**.
--- Auto update (configured) Extensions from the CLI
+    - Update Extensions using the information from the update server, just as when using the **Administrator** → **Extensions: Update**.
+    - Auto update (configured) Extensions from the CLI
 
 
 ## Installation
@@ -17,8 +17,8 @@
 ## Update notifications
 
 - Set up a new Task Plugin `System -> Scheduled Tasks -> New -> All Updates Notification`
--- Add one or more recipients. These must be Super Users. If no recipient is set (or none of the selected recipients is a Super User any more) all Super Users with `Receive System Emails` enabled will receive an email
--- With `Send Once` to **Yes**, emails will only be sent once, until the list of available updates changes. Otherwise, an email is sent on each Task Execution
+    - Add one or more recipients. These must be Super Users. If no recipient is set (or none of the selected recipients is a Super User any more) all Super Users with `Receive System Emails` enabled will receive an email
+    - With `Send Once` to **Yes**, emails will only be sent once, until the list of available updates changes. Otherwise, an email is sent on each Task Execution
 - Disable the Core update notifications task, if present.
 
 ## Extension update from CLI
