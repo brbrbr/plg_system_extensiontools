@@ -11,7 +11,6 @@ namespace Joomla\Plugin\Task\ExtensionUpdates\Field;
 
 use Joomla\CMS\Form\Field\UserField as JoomlaUserField;
 use Joomla\CMS\Access\Access;
-
 use Joomla\CMS\Table\Asset;
 
 // phpcs:disable PSR1.Files.SideEffects
@@ -25,7 +24,6 @@ use Joomla\CMS\Table\Asset;
  */
 class UserField extends JoomlaUserField
 {
-
     protected $layout = 'joomla.form.field.user';
 
 

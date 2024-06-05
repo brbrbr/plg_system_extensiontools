@@ -19,7 +19,6 @@ use Joomla\CMS\Form\Field\ListField;
 
 class ExtensionsField extends ListField
 {
-   
     protected $layout = 'joomla.form.field.list-fancy-select';
     public bool $is_select_list = true;
     public bool $use_ajax       = true;
@@ -27,28 +26,24 @@ class ExtensionsField extends ListField
     {
         $this->type ??= 'Extensions';
         parent::__construct($form);
-    
     }
 
 
     protected function getOptions(): array
     {
-        $plugin =  Factory::getApplication()->bootPlugin( 'extensiontools','system');
-      
+        $plugin =  Factory::getApplication()->bootPlugin('extensiontools', 'system');
+
         $es = $plugin->getNonCoreExtensionsWithUpdateSite();
 
-      
+
         $options = [];
         foreach ($es as $e) {
-            $options[$e->name] =['value'=>$e->extension_id,"text"=>"{$e->name} ({$e->type})"];
+            $options[$e->name] = ['value' => $e->extension_id,"text" => "{$e->name} ({$e->type})"];
         }
 
         ksort($options);
-    
+
 
         return array_values($options);
     }
-
-
-
 }

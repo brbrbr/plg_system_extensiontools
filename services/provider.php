@@ -33,12 +33,12 @@ return new class () implements ServiceProviderInterface {
      */
     public function register(Container $container): void
     {
-	  
+
         $container->set(
             PluginInterface::class,
             function (Container $container) {
 
-                $plugin     = new PluginActor (
+                $plugin     = new PluginActor(
                     $container->get(DispatcherInterface::class),
                     (array) PluginHelper::getPlugin('system', 'extensiontools')
                 );

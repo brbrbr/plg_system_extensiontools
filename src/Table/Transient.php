@@ -29,7 +29,7 @@ class Transient extends Table
     public $character_count = 0;
     public $version_data = [];
     public $version_note = '';
-    public $sha1_hash = Null;
+    public $sha1_hash = null;
     public $save_date = "2000-01-01 01:01:01";
 
     /**
@@ -60,7 +60,7 @@ class Transient extends Table
      *
      * @since   4.0.0
      */
-    public  function storeTransient($data, $note = 'transient')
+    public function storeTransient($data, $note = 'transient')
     {
         $this->version_data = json_encode($data);
         $this->version_note = $note;

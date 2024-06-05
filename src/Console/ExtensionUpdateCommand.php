@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Based On libraries/src/Console/ExtensionInstallCommand.php 
+ * Based On libraries/src/Console/ExtensionInstallCommand.php
  * from the Joomla! Content Management System
  * (C) 2020 Open Source Matters, Inc. <https://www.joomla.org>
  * GNU General Public License version 2 or later; see LICENSE.txt
- * 
+ *
  * @version   24.51
  * @author    Bram <bram@brokenlinkchecker.dev>
  * @copyright 2024 Bram Brambring (https://brambring.nl)
@@ -24,6 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Joomla\CMS\Extension\ExtensionHelper;
 use Joomla\Registry\Registry;
+
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
@@ -47,7 +48,7 @@ class ExtensionUpdateCommand extends AbstractCommand
     private $successInfo = [];
     private $failInfo = [];
     private $skipInfo = [];
-    private $allowedExtension = Null;
+    private $allowedExtension = null;
 
     /**
      * Stores the Input Object
@@ -174,13 +175,13 @@ class ExtensionUpdateCommand extends AbstractCommand
     private function isJoomlaCore(string $eid): bool
     {
         // $coreEid = ExtensionHelper::getExtensionRecord('joomla', 'file')->extension_id;
-        //retrun $coreEid == $eid 
+        //retrun $coreEid == $eid
         $coreExtensionIds = ExtensionHelper::getCoreExtensionIds();
         return  in_array($eid, $coreExtensionIds);
     }
 
 
-    private function IsAllowedToUpdate(object $update): bool
+    private function isAllowedToUpdate(object $update): bool
     {
         $plugin =  Factory::getApplication()->bootPlugin('extensiontools', 'system');
         if ($this->allowedExtension === null) {
@@ -193,7 +194,6 @@ class ExtensionUpdateCommand extends AbstractCommand
                 \count($this->allowedExtension['minor']) == 0
                 &&
                 \count($this->allowedExtension['patch']) == 0
-
             ) {
                 $this->ioStyle->caution('No extensions allowed for automatic updates');
             }
@@ -210,8 +210,8 @@ class ExtensionUpdateCommand extends AbstractCommand
             \count($currentVersion) == 1
             ||  \count($newVersion) == 1
         ) {
-            //no minor version 
-         
+            //no minor version
+
             return false;
         }
         if ($currentVersion[0] != $newVersion[0]) {
@@ -232,7 +232,7 @@ class ExtensionUpdateCommand extends AbstractCommand
             \count($currentVersion) < 3
             || \count($newVersion) < 3
         ) {
-            //no patch level 
+            //no patch level
 
             return false;
         }
@@ -254,7 +254,7 @@ class ExtensionUpdateCommand extends AbstractCommand
                 continue;
             }
 
-            if (!$this->IsAllowedToUpdate($update)) {
+            if (!$this->isAllowedToUpdate($update)) {
                 $this->skipInfo[] = $this->updateToRow($update);
                 continue;
             }
@@ -284,7 +284,7 @@ class ExtensionUpdateCommand extends AbstractCommand
 
     private function getUpdates($purge = false)
     {
-        if ($this->updateList === Null) {
+        if ($this->updateList === null) {
             // Find updates.
             /** @var UpdateModel $model */
             $model = $this->getApplication()->bootComponent('com_installer')
