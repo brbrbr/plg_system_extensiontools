@@ -56,6 +56,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             'form'            => 'sendForm',
         ],
     ];
+    private $NonCoreExtensionsWithUpdateSite;
 
     /**
      * @var boolean
@@ -84,6 +85,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
     public function getNonCoreExtensionsWithUpdateSite()
     {
+        if ( $this->NonCoreExtensionsWithUpdateSite === Null) {
         $db    = $this->getDatabase();
         $query = $db->createQuery();
 
@@ -102,12 +104,12 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             ->where($db->quoteName('ex.package_id') . ' = 0')
 
             ->join(
-                'INNER',
+                'LEFT',
                 $db->quoteName('#__update_sites_extensions', 'ue'),
                 $db->quoteName('ue.extension_id') . ' = ' . $db->quoteName('ex.extension_id')
             )
             ->join(
-                'INNER',
+                'LEFT',
                 $db->quoteName('#__update_sites', 'us'),
                 $db->quoteName('ue.update_site_id') . ' = ' . $db->quoteName('us.update_site_id')
             )
@@ -132,8 +134,10 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             unset($extension->manifest_cache);
             $extension->manifest_cache = $decode;
         }
+        $this->NonCoreExtensionsWithUpdateSite=$rows;
+    }
 
-        return $rows;
+        return $this->NonCoreExtensionsWithUpdateSite;
     }
 
 
