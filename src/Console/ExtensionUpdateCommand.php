@@ -24,6 +24,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Joomla\CMS\Extension\ExtensionHelper;
 use Joomla\Registry\Registry;
+use Joomla\CMS\Updater\Updater;
+use Joomla\CMS\Component\ComponentHelper;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -49,6 +51,7 @@ class ExtensionUpdateCommand extends AbstractCommand
     private $failInfo = [];
     private $skipInfo = [];
     private $allowedExtension = null;
+    private Registry $params;
 
     /**
      * Stores the Input Object
@@ -89,6 +92,7 @@ class ExtensionUpdateCommand extends AbstractCommand
      */
     private function configureIO(InputInterface $input, OutputInterface $output): void
     {
+        $this->params = Factory::getApplication()->bootPlugin('extensiontools', 'system')->params;
         $this->cliInput = $input;
         $this->ioStyle  = new SymfonyStyle($input, $output);
         $this->getApplication()->getLanguage()->load('lib_joomla', JPATH_ADMINISTRATOR, null, true, true);
@@ -113,6 +117,8 @@ class ExtensionUpdateCommand extends AbstractCommand
 		\nYou must provide one of the following options to the command:
 		\n  --path: The path on your local filesystem to the install package
 		\n  --url: The URL from where the install package should be downloaded
+        \n  --eid: The Extension ID of the extension to be updated
+        \n  --all: Update all extension with pending update
 		\nUsage:
 		\n  <info>php %command.full_name% --path=<path_to_file></info>
         \n  <info>php %command.full_name% --eid=<exention id></info>
@@ -183,11 +189,11 @@ class ExtensionUpdateCommand extends AbstractCommand
 
     private function isAllowedToUpdate(object $update): bool
     {
-        $plugin =  Factory::getApplication()->bootPlugin('extensiontools', 'system');
+    
         if ($this->allowedExtension === null) {
-            $this->allowedExtension['all'] = $plugin->params->get('allowedAll', []);
-            $this->allowedExtension['minor'] = $plugin->params->get('allowedMinor', []);
-            $this->allowedExtension['patch'] = $plugin->params->get('allowedPatch', []);
+            $this->allowedExtension['all'] = $this->params->get('allowedAll', []);
+            $this->allowedExtension['minor'] = $this->params->get('allowedMinor', []);
+            $this->allowedExtension['patch'] = $this->params->get('allowedPatch', []);
             if (
                 \count($this->allowedExtension['all']) == 0
                 &&
@@ -317,8 +323,9 @@ class ExtensionUpdateCommand extends AbstractCommand
         $mvcFactory = $app->bootComponent('com_installer')->getMVCFactory();
         $model  = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
         Factory::$application = $app;
-
-        $model->update([$uid]);
+        $params            = ComponentHelper::getComponent('com_installer')->getParams();
+        $minimum_stability = (int) $params->get('minimum_stability', Updater::STABILITY_STABLE);
+        $model->update([$uid],$minimum_stability);
         $result = $model->getState('result');
         if ($result) {
             $this->successInfo[] = $this->updateToRow($update);
