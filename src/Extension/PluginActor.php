@@ -29,6 +29,9 @@ use Joomla\CMS\Mail\MailHelper;
 use Joomla\CMS\Table\Asset;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\Plugin\Task\ExtensionUpdates\Table\Transient;
+use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Updater\Updater;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -43,9 +46,10 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 {
     use DatabaseAwareTrait;
     use TaskPluginTrait;
+    use UpdateTrait;
 
     protected $allowLegacyListeners = false;
-     /**
+    /**
      * @var string[]
      * @since 1.0.0
      */
@@ -54,6 +58,11 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             'langConstPrefix' => 'PLG_SYSTEM_EXTENSIONTOOLS_SEND',
             'method'          => 'checkExtensionUpdates',
             'form'            => 'sendForm',
+        ],
+        'update.allextensions' => [
+            'langConstPrefix' => 'PLG_SYSTEM_EXTENSIONTOOLS_ALL',
+            'method'          => 'updateAllExtensions',
+            'form'            => 'updateForm',
         ],
     ];
     private $NonCoreExtensionsWithUpdateSite;
@@ -85,57 +94,57 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
     public function getNonCoreExtensionsWithUpdateSite()
     {
-        if ( $this->NonCoreExtensionsWithUpdateSite === Null) {
-        $db    = $this->getDatabase();
-        $query = $db->createQuery();
+        if ($this->NonCoreExtensionsWithUpdateSite === Null) {
+            $db    = $this->getDatabase();
+            $query = $db->createQuery();
 
-        $query->select(
-            [
-                $db->quoteName('ex.name'),
-                $db->quoteName('ex.extension_id'),
-                $db->quoteName('ex.manifest_cache'),
-                $db->quoteName('ex.type'),
-                $db->quoteName('ex.folder'),
-                $db->quoteName('ex.element'),
-                $db->quoteName('ex.client_id'),
-            ]
-        )
-            ->from($db->quoteName('#__extensions', 'ex'))
-            ->where($db->quoteName('ex.package_id') . ' = 0')
-
-            ->join(
-                'LEFT',
-                $db->quoteName('#__update_sites_extensions', 'ue'),
-                $db->quoteName('ue.extension_id') . ' = ' . $db->quoteName('ex.extension_id')
+            $query->select(
+                [
+                    $db->quoteName('ex.name'),
+                    $db->quoteName('ex.extension_id'),
+                    $db->quoteName('ex.manifest_cache'),
+                    $db->quoteName('ex.type'),
+                    $db->quoteName('ex.folder'),
+                    $db->quoteName('ex.element'),
+                    $db->quoteName('ex.client_id'),
+                ]
             )
-            ->join(
-                'LEFT',
-                $db->quoteName('#__update_sites', 'us'),
-                $db->quoteName('ue.update_site_id') . ' = ' . $db->quoteName('us.update_site_id')
-            )
+                ->from($db->quoteName('#__extensions', 'ex'))
+                ->where($db->quoteName('ex.package_id') . ' = 0')
+
+                ->join(
+                    'LEFT',
+                    $db->quoteName('#__update_sites_extensions', 'ue'),
+                    $db->quoteName('ue.extension_id') . ' = ' . $db->quoteName('ex.extension_id')
+                )
+                ->join(
+                    'LEFT',
+                    $db->quoteName('#__update_sites', 'us'),
+                    $db->quoteName('ue.update_site_id') . ' = ' . $db->quoteName('us.update_site_id')
+                )
 
 
-            ->whereNotIn($db->quoteName('ex.extension_id'), ExtensionHelper::getCoreExtensionIds());
+                ->whereNotIn($db->quoteName('ex.extension_id'), ExtensionHelper::getCoreExtensionIds());
 
-        $db->setQuery($query);
-        $rows = $db->loadObjectList();
+            $db->setQuery($query);
+            $rows = $db->loadObjectList();
 
-        foreach ($rows as $extension) {
-            $decode = json_decode($extension->manifest_cache);
+            foreach ($rows as $extension) {
+                $decode = json_decode($extension->manifest_cache);
 
-            // Remove unused fields so they do not cause javascript errors during pre-update check
-            unset($decode->description);
-            unset($decode->copyright);
-            unset($decode->creationDate);
+                // Remove unused fields so they do not cause javascript errors during pre-update check
+                unset($decode->description);
+                unset($decode->copyright);
+                unset($decode->creationDate);
 
-            $this->translateExtensionName($extension);
-            $extension->version
-                = $decode->version ?? Text::_('COM_JOOMLAUPDATE_PREUPDATE_UNKNOWN_EXTENSION_MANIFESTCACHE_VERSION');
-            unset($extension->manifest_cache);
-            $extension->manifest_cache = $decode;
+                $this->translateExtensionName($extension);
+                $extension->version
+                    = $decode->version ?? Text::_('COM_JOOMLAUPDATE_PREUPDATE_UNKNOWN_EXTENSION_MANIFESTCACHE_VERSION');
+                unset($extension->manifest_cache);
+                $extension->manifest_cache = $decode;
+            }
+            $this->NonCoreExtensionsWithUpdateSite = $rows;
         }
-        $this->NonCoreExtensionsWithUpdateSite=$rows;
-    }
 
         return $this->NonCoreExtensionsWithUpdateSite;
     }
@@ -183,7 +192,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $item->name = strip_tags(Text::_($item->name));
     }
 
-       /**
+    /**
      * Method to get the updates.
      * From update:extensions:check
      *
@@ -215,16 +224,162 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         return $model->getItems();
     }
 
-     /**
-      * Method to send the update notification.
-      *
-      * @param   ExecuteTaskEvent  $event  The `onExecuteTask` event.
-      *
-      * @return integer  The routine exit code.
-      *
-      * @since  1.0.0
-      * @throws \Exception
-      */
+
+    private function updateAllExtensions(ExecuteTaskEvent $event): int
+    {
+
+
+        $this->getUpdates(true);
+        $uids = [];
+        foreach ($this->updateList as $update) {
+            //Joomla core should not show up here. Just to be sure
+            if ($this->isJoomlaCore($update->extension_id)) {
+                $this->skipInfo[] = $this->updateToRow($update);
+                continue;
+            }
+
+            if (!$this->isAllowedToUpdate($update)) {
+                $this->skipInfo[] = $this->updateToRow($update);
+                continue;
+            }
+            $uids[$update->update_id] =   $update;
+        }
+
+        if (\count($uids) > 0) {
+            // Load the parameters.
+            $params = $event->getArgument('params');
+            $recipients = ArrayHelper::fromObject($params->recipients ?? [], false);
+            $sendOnce = (bool)($params->send_once ?? true);
+            $specificIds = array_map(function ($item) {
+                return $item->user;
+            }, $recipients);
+            $forcedLanguage = $params->language_override ?? '';
+            /*
+           * Load the appropriate language. We try to load English (UK), the current user's language and the forced
+           * language preference, in this order. This ensures that we'll never end up with untranslated strings in the
+           * update email which would make Joomla! seem bad. So, please, if you don't fully understand what the
+           * following code does DO NOT TOUCH IT. It makes the difference between a hobbyist CMS and a professional
+           * solution!
+           */
+            $jLanguage = $this->getApplication()->getLanguage();
+            $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, 'en-GB', true, true);
+            $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, null, true, true);
+            $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, 'en-GB', true, true);
+            $jLanguage->load('lib_jcom_installeroomla', JPATH_ADMINISTRATOR, null, true, true);
+            $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, 'en-GB', true, true);
+            $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, null, true, false);
+
+            // Then try loading the preferred (forced) language
+            if (!empty($forcedLanguage)) {
+                $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
+                $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
+                $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
+            }
+            $superUsers = [];
+
+            if (!empty($specificIds)) {
+                $superUsers = $this->getSuperUsers($specificIds);
+            }
+
+            if (empty($superUsers)) {
+                $superUsers = $this->getSuperUsers();
+            }
+
+            $app = $this->getApplication();
+            //  $app->getInput()->set('ignoreMessages',false);
+            $mvcFactory = $app->bootComponent('com_installer')->getMVCFactory();
+            $model  = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
+            $minimum_stability = ComponentHelper::getComponent('com_installer')->getParams()->get('minimum_stability', Updater::STABILITY_STABLE);
+            $model->update(array_keys($uids), $minimum_stability);
+            if (is_callable([$app, 'getMessageQueue'])) {
+                $messages = $app->getMessageQueue();
+            }
+
+
+            if (empty($superUsers)) {
+                $this->logTask('No recipients found');
+                return Status::OK;
+            }
+
+            $baseSubstitutions = [
+                'sitename'      => $this->getApplication()->get('sitename'),
+
+            ];
+
+            $body = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_HEADER', count($uids)), $baseSubstitutions) . "\n\n"];
+            $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SUBJECT', count($uids)), $baseSubstitutions);
+
+            foreach ($uids as $updateValue) {
+                // Replace merge codes with their values
+                $extensionSubstitutions = [
+                    'newversion'    => $updateValue->version,
+                    'curversion'    => $updateValue->current_version,
+                    'extensiontype' => $updateValue->type,
+                    'extensionname' => $updateValue->name,
+                ];
+
+                $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SINGLE'), $extensionSubstitutions) . "\n";
+            }
+
+            $messages = $app->getMessageQueue();
+            $lists    = [];
+
+            // Build the sorted messages list
+            if (\is_array($messages) && \count($messages)) {
+                foreach ($messages as $message) {
+                    if (isset($message['type']) && isset($message['message'])) {
+                        $lists[$message['type']][] = $message['message'];
+                    }
+                }
+            }
+
+            // If messages exist add them to the output
+            if (\count($lists)) {
+                foreach ($lists as $type => $messages) {
+                    $body[] = "\n$type:\n";
+                    $body[] = join("\n", $messages);
+                }
+            }
+            $body = join("\n", $body);
+            // Send the emails to the Super Users
+            try {
+                $mail = clone Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
+                foreach ($superUsers as $superUser) {
+                    $mail->addBcc($superUser->email, $superUser->name);
+                }
+                $mailfrom =   $this->getApplication()->get('mailfrom');
+                $fromname = $this->getApplication()->get('fromname');
+
+                if (MailHelper::isEmailAddress($mailfrom)) {
+                    $mail->setSender(MailHelper::cleanLine($mailfrom), MailHelper::cleanLine($fromname), false);
+                }
+                $mail->setBody($body);
+                $mail->setSubject($subject);
+                $mail->SMTPDebug = false;
+                $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]];
+                $mail->isHtml(false);
+                $mail->send();
+            } catch (MailDisabledException | phpMailerException $exception) {
+                try {
+                    $this->logTask($jLanguage->_($exception->getMessage()));
+                } catch (\RuntimeException $exception) {
+                    return Status::KNOCKOUT;
+                }
+            }
+
+        }
+        return Status::OK;
+    }
+    /**
+     * Method to send the update notification.
+     *
+     * @param   ExecuteTaskEvent  $event  The `onExecuteTask` event.
+     *
+     * @return integer  The routine exit code.
+     *
+     * @since  1.0.0
+     * @throws \Exception
+     */
     private function checkExtensionUpdates(ExecuteTaskEvent $event): int
     {
 
@@ -238,7 +393,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             return $item->user;
         }, $recipients);
         $forcedLanguage = $params->language_override ?? '';
-     /*
+        /*
          * Load the appropriate language. We try to load English (UK), the current user's language and the forced
          * language preference, in this order. This ensures that we'll never end up with untranslated strings in the
          * update email which would make Joomla! seem bad. So, please, if you don't fully understand what the
@@ -385,16 +540,16 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         return Status::OK;
     }
 
-     /**
-      * Method to replace tags like in MailTemplate
-      *
-      * @param   string  $text  The `language string`.
-      * @param   array  $tags  key replacment pairs
-      *
-      * @return string  The text with replaces tags
-      *
-      * @since  1.0.1
-      */
+    /**
+     * Method to replace tags like in MailTemplate
+     *
+     * @param   string  $text  The `language string`.
+     * @param   array  $tags  key replacment pairs
+     *
+     * @return string  The text with replaces tags
+     *
+     * @since  1.0.1
+     */
 
     protected function replaceTags(string $text, array $tags)
     {
@@ -434,17 +589,17 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     }
 
 
-     /**
-      * Returns the Super Users email information. If you provide a comma separated $email list
-      * we will check that these emails do belong to Super Users
-      * this version overrides the sendemail parameter in the user settings
-      *
-      * @param   null|array  $userIds  A list of Super Users to email
-      *
-      * @return  array  The list of Super User emails
-      *
-      * @since   1.0.1
-      */
+    /**
+     * Returns the Super Users email information. If you provide a comma separated $email list
+     * we will check that these emails do belong to Super Users
+     * this version overrides the sendemail parameter in the user settings
+     *
+     * @param   null|array  $userIds  A list of Super Users to email
+     *
+     * @return  array  The list of Super User emails
+     *
+     * @since   1.0.1
+     */
     private function getSuperUsers(?array $userIds = null)
     {
         $db     = $this->getDatabase();

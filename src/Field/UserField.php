@@ -7,7 +7,7 @@
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Joomla\Plugin\Task\ExtensionUpdates\Field;
+ namespace Brambring\Plugin\System\Extensiontools\Field;
 
 use Joomla\CMS\Form\Field\UserField as JoomlaUserField;
 use Joomla\CMS\Access\Access;

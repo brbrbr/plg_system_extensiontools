@@ -7,7 +7,7 @@
  * @license    GNU General Public License version 3 or later;
  */
 
-namespace Brambring\Plugin\System\Extensiontools\Field;
+ namespace Brambring\Plugin\System\Extensiontools\Field;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
