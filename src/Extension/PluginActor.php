@@ -28,7 +28,7 @@ use Joomla\CMS\Mail\MailerFactoryInterface;
 use Joomla\CMS\Mail\MailHelper;
 use Joomla\CMS\Table\Asset;
 use Joomla\Utilities\ArrayHelper;
-use Joomla\Plugin\Task\ExtensionUpdates\Table\Transient;
+use Brambring\Plugin\System\Extensiontools\Table\Transient;
 use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Updater\Updater;

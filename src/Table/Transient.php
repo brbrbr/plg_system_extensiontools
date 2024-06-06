@@ -7,7 +7,8 @@
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Joomla\Plugin\Task\ExtensionUpdates\Table;
+
+namespace Brambring\Plugin\System\Extensiontools\Table;
 
 use Joomla\CMS\Factory;
 use Joomla\Database\DatabaseDriver;
