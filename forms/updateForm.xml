@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form >
+	<fields name="params">
+		<fieldset name="task_params" addfieldprefix="Brambring\Plugin\Task\ExtensionUpdates\Field">
+			<field name="recipients" showon="email!:0" type="subform" label="PLG_SYSTEM_EXTENSIONTOOLS_EMAILS_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_EMAIL_DESC" multiple="true">
+				<form>
+				<fieldset addfieldprefix="Brambring\Plugin\System\Extensiontools\Field">
+					<field name="user" type="user" label="PLG_SYSTEM_EXTENSIONTOOLS_EMAIL_LBL" default="" />
+				</fieldset>
+				</form>
+			</field>
+			<field name="language_override" type="language" label="PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_DESC" default="" client="administrator">
+				<option value="">PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_NONE</option>
+			</field>
+		</fieldset>
+	</fields>
+</form>
