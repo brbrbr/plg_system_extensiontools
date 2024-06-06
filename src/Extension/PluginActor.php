@@ -149,7 +149,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         return $this->NonCoreExtensionsWithUpdateSite;
     }
 
-
+    //need a copy since the function is protected in 
     protected function translateExtensionName(&$item)
     {
         // @todo: Cleanup duplicated code. from com_installer/src/Model/InstallerModel.php
@@ -229,27 +229,23 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     {
 
 
-        $this->getUpdates(true);
-        $uids = [];
-        foreach ($this->updateList as $update) {
-            //Joomla core should not show up here. Just to be sure
-            if ($this->isJoomlaCore($update->extension_id)) {
-                $this->skipInfo[] = $this->updateToRow($update);
-                continue;
-            }
+     
+        $updates = $this->getAllowedUpdates();
 
-            if (!$this->isAllowedToUpdate($update)) {
-                $this->skipInfo[] = $this->updateToRow($update);
-                continue;
-            }
-            $uids[$update->update_id] =   $update;
-        }
+        if (\count($updates) > 0) {
 
-        if (\count($uids) > 0) {
+            $app = $this->getApplication();
+            //  $app->getInput()->set('ignoreMessages',false);
+            $mvcFactory = $app->bootComponent('com_installer')->getMVCFactory();
+            $model  = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
+            $minimum_stability = ComponentHelper::getComponent('com_installer')->getParams()->get('minimum_stability', Updater::STABILITY_STABLE);
+            $model->update(array_keys($updates), $minimum_stability);
+
+
             // Load the parameters.
             $params = $event->getArgument('params');
             $recipients = ArrayHelper::fromObject($params->recipients ?? [], false);
-            $sendOnce = (bool)($params->send_once ?? true);
+
             $specificIds = array_map(function ($item) {
                 return $item->user;
             }, $recipients);
@@ -265,7 +261,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, 'en-GB', true, true);
             $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, null, true, true);
             $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, 'en-GB', true, true);
-            $jLanguage->load('lib_jcom_installeroomla', JPATH_ADMINISTRATOR, null, true, true);
+            $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, null, true, true);
             $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, 'en-GB', true, true);
             $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, null, true, false);
 
@@ -285,12 +281,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 $superUsers = $this->getSuperUsers();
             }
 
-            $app = $this->getApplication();
-            //  $app->getInput()->set('ignoreMessages',false);
-            $mvcFactory = $app->bootComponent('com_installer')->getMVCFactory();
-            $model  = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
-            $minimum_stability = ComponentHelper::getComponent('com_installer')->getParams()->get('minimum_stability', Updater::STABILITY_STABLE);
-            $model->update(array_keys($uids), $minimum_stability);
+
             if (is_callable([$app, 'getMessageQueue'])) {
                 $messages = $app->getMessageQueue();
             }
@@ -306,10 +297,10 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
             ];
 
-            $body = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_HEADER', count($uids)), $baseSubstitutions) . "\n\n"];
-            $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SUBJECT', count($uids)), $baseSubstitutions);
+            $body = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_HEADER', count($updates)), $baseSubstitutions) . "\n\n"];
+            $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SUBJECT', count($updates)), $baseSubstitutions);
 
-            foreach ($uids as $updateValue) {
+            foreach ($updates as $updateValue) {
                 // Replace merge codes with their values
                 $extensionSubstitutions = [
                     'newversion'    => $updateValue->version,
@@ -366,7 +357,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                     return Status::KNOCKOUT;
                 }
             }
-
         }
         return Status::OK;
     }

@@ -27,6 +27,7 @@ use Joomla\Registry\Registry;
 use Joomla\CMS\Updater\Updater;
 use Joomla\CMS\Component\ComponentHelper;
 use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
+use Brambring\Plugin\System\Extensiontools\Joomla\UpdateModel;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -49,7 +50,7 @@ class ExtensionUpdateCommand extends AbstractCommand
     protected static $defaultName = 'update:extensions:update';
 
 
-   /* used to mimick a normal plugin for in the trait */
+    /* used to mimick a normal plugin for in the trait */
     private Registry $params;
 
     /**
@@ -161,22 +162,12 @@ class ExtensionUpdateCommand extends AbstractCommand
         return $result;
     }
 
-  
+
 
     private function updataAll(): bool
     {
-        $this->getUpdates(true);
-        foreach ($this->updateList as $update) {
-            //Joomla core should not show up here. Just to be sure
-            if ($this->isJoomlaCore($update->extension_id)) {
-                $this->skipInfo[] = $this->updateToRow($update);
-                continue;
-            }
-
-            if (!$this->isAllowedToUpdate($update)) {
-                $this->skipInfo[] = $this->updateToRow($update);
-                continue;
-            }
+        $updates=$this->getAllowedUpdates();
+        foreach ($updates as $update) {
             //Let's do it one by one for some nice log
             $this->updateUID($update);
         }
@@ -201,10 +192,9 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
     }
 
-   
-//an other approach would be to get the download URL from the update
-//then execute the trigger for download keys etc
-//then use processUrlInstallation
+/*
+* Single update 
+*/
     private function updateUID($update): bool
     {
         $uid = $update->update_id ?? false;
@@ -212,22 +202,38 @@ class ExtensionUpdateCommand extends AbstractCommand
             $this->ioStyle->error('Invalid update');
             return false;
         }
+
+        $minimum_stability = ComponentHelper::getComponent('com_installer')->getParams()->get('minimum_stability', Updater::STABILITY_STABLE);
+
+        $app = $this->getApplication();
+        $mvcFactory = $app->bootComponent('com_installer')->getMVCFactory();
+        if (is_callable([$app, 'setUserState'])) {
+            $model  = $mvcFactory->createModel('Update', 'Administrator', ['ignore_request' => true]);
+        } else {
+            $model = new UpdateModel(['ignore_request' => true],     $mvcFactory);
+        }
+
+        /* workaround 2
         //THe cli application will not install. So boot a AdministratorApplication
         $container = \Joomla\CMS\Factory::getContainer();
-        $CLIApp = Factory::getApplication();
+        $CLIApp = $this->getApplication();
         $app = $container->get(\Joomla\CMS\Application\AdministratorApplication::class);
         $mvcFactory = $app->bootComponent('com_installer')->getMVCFactory();
         $model  = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
         Factory::$application = $app;
-        $minimum_stability = ComponentHelper::getComponent('com_installer')->getParams()->get('minimum_stability', Updater::STABILITY_STABLE);
-        $model->update([$uid],$minimum_stability);
+     */
+
+        $model->update([$uid], $minimum_stability);
         $result = $model->getState('result');
         if ($result) {
             $this->successInfo[] = $this->updateToRow($update);
         } else {
             $this->failInfo[] = $this->updateToRow($update);
         }
+        /* workarond 2 
         Factory::$application = $CLIApp;
+*/
+
         return $result;
     }
 

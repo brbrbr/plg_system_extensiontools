@@ -36,7 +36,7 @@ use Joomla\CMS\Component\ComponentHelper;
  *
  * @since  4.0.0
  */
-trait UpdateTrait 
+trait UpdateTrait
 {
 
     private $updateList;
@@ -61,7 +61,7 @@ trait UpdateTrait
         }
         return false;
     }
-    
+
     private function isJoomlaCore(string $eid): bool
     {
         // $coreEid = ExtensionHelper::getExtensionRecord('joomla', 'file')->extension_id;
@@ -73,7 +73,7 @@ trait UpdateTrait
 
     private function isAllowedToUpdate(object $update): bool
     {
-    
+
         if ($this->allowedExtension === null) {
             $this->allowedExtension['all'] = $this->params->get('allowedAll', []);
             $this->allowedExtension['minor'] = $this->params->get('allowedMinor', []);
@@ -85,7 +85,7 @@ trait UpdateTrait
                 &&
                 \count($this->allowedExtension['patch']) == 0
             ) {
-                $this->ioStyle->caution('No extensions allowed for automatic updates');
+                $this->getApplication()->enqueueMessage('No extensions allowed for automatic updates', 'warning');
             }
         }
 
@@ -95,7 +95,7 @@ trait UpdateTrait
 
         $currentVersion = explode('.', $update->current_version);
         $newVersion = explode('.', $update->version);
-           //count may differ 2.0.0 -> 2.0.0.1
+        //count may differ 2.0.0 -> 2.0.0.1
         if (
             \count($currentVersion) == 1
             ||  \count($newVersion) == 1
@@ -133,10 +133,30 @@ trait UpdateTrait
 
         return false;
     }
+    private function getAllowedUpdates()
+    {
+        $this->getUpdates(true);
+        $uids = [];
+        foreach ($this->updateList as $update) {
+            //Joomla core should not show up here. Just to be sure
+            if ($this->isJoomlaCore($update->extension_id)) {
+                $this->skipInfo[] = $this->updateToRow($update);
+                continue;
+            }
+
+            if (!$this->isAllowedToUpdate($update)) {
+                $this->skipInfo[] = $this->updateToRow($update);
+                continue;
+            }
+            $uids[$update->update_id] =   $update;
+        }
+        return $uids;
+    }
 
     private function getUpdates($purge = false)
     {
         if ($this->updateList === null) {
+            $this->getApplication()->getLanguage()->load('com_installer', JPATH_ADMINISTRATOR, null, true, true);
             // Find updates.
             /** @var UpdateModel $model */
             $model = $this->getApplication()->bootComponent('com_installer')
