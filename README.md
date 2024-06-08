@@ -2,10 +2,10 @@
 
 - Scheduled Tasks
     - Check for updates of extensions & Joomla! Core and sends an email when available.
-    - Upcoming : Auto update (configured) Extensions.
+    - Auto update (configured) Extensions.
 - CLI
-    - Update Extensions using the information from the update server, just as when using the **Administrator** → **Extensions: Update**.
-    - Auto update (configured) Extensions from the CLI
+    - Update Extensions using the information from the update server, just as when using the **Administrator** → **Extensions: Update**. No hasle to find the download link or append licence information.
+    - Auto update (configured) Extensions.
 
 
 ## Installation
