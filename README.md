@@ -62,3 +62,5 @@ Updating on patch level should be safe, on minor level safe enough. Major update
 
 
 Additional labels for pre-release and build metadata might be added as suffixes to the MAJOR.MINOR.PATCH format. These are not considered by the plugin.
+
+https://brokenlinkchecker.dev/extensions/extension-tools

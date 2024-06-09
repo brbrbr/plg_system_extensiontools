@@ -7,14 +7,13 @@
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-
 namespace Brambring\Plugin\System\Extensiontools\Table;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Table\Table;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\ParameterType;
 use Joomla\Event\DispatcherInterface;
-use Joomla\CMS\Table\Table;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -28,10 +27,10 @@ use Joomla\CMS\Table\Table;
 class Transient extends Table
 {
     public $character_count = 0;
-    public $version_data = [];
-    public $version_note = '';
-    public $sha1_hash = null;
-    public $save_date = "2000-01-01 01:01:01";
+    public $version_data    = [];
+    public $version_note    = '';
+    public $sha1_hash       = null;
+    public $save_date       = "2000-01-01 01:01:01";
 
     /**
      * Constructor
@@ -65,7 +64,7 @@ class Transient extends Table
     {
         $this->version_data = json_encode($data);
         $this->version_note = $note;
-        $result = $this->store();
+        $result             = $this->store();
 
         return $result;
     }
@@ -81,7 +80,7 @@ class Transient extends Table
      */
     public function store($updateNulls = false)
     {
-        $versionData = $this->version_data ?? '';
+        $versionData           = $this->version_data ?? '';
         $this->character_count =  \strlen($versionData);
 
         if (!isset($this->sha1_hash)) {
@@ -119,7 +118,7 @@ class Transient extends Table
     public function getHashMatch(string $itemId, string $sha1Hash)
     {
         $db       = $this->_db;
-        $query = $db->createQuery();
+        $query    = $db->createQuery();
         $query->select('*')
             ->from($db->quoteName('#__history'))
             ->where($db->quoteName('item_id') . ' = :item_id')
@@ -148,7 +147,7 @@ class Transient extends Table
         // Get the list of version_id values we want to save
         $db        = $this->_db;
         $itemId    = $this->item_id;
-        $query = $db->createQuery();
+        $query     = $db->createQuery();
         $query->select($db->quoteName('version_id'))
             ->from($db->quoteName('#__history'))
             ->where($db->quoteName('item_id') . ' = :item_id')

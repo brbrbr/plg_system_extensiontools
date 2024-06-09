@@ -14,20 +14,19 @@
 
 namespace Brambring\Plugin\System\Extensiontools\Console;
 
-use Joomla\CMS\Installer\Installer;
+use Brambring\Plugin\System\Extensiontools\Joomla\UpdateModel;
+use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Installer\Installer;
 use Joomla\CMS\Installer\InstallerHelper;
+use Joomla\CMS\Updater\Updater;
 use Joomla\Console\Command\AbstractCommand;
+use Joomla\Registry\Registry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Joomla\CMS\Extension\ExtensionHelper;
-use Joomla\Registry\Registry;
-use Joomla\CMS\Updater\Updater;
-use Joomla\CMS\Component\ComponentHelper;
-use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
-use Brambring\Plugin\System\Extensiontools\Joomla\UpdateModel;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -92,7 +91,7 @@ class ExtensionUpdateCommand extends AbstractCommand
      */
     private function configureIO(InputInterface $input, OutputInterface $output): void
     {
-        $this->params = Factory::getApplication()->bootPlugin('extensiontools', 'system')->params;
+        $this->params   = Factory::getApplication()->bootPlugin('extensiontools', 'system')->params;
         $this->cliInput = $input;
         $this->ioStyle  = new SymfonyStyle($input, $output);
         $this->getApplication()->getLanguage()->load('lib_joomla', JPATH_ADMINISTRATOR, null, true, true);
@@ -192,9 +191,9 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
     }
 
-/*
-* Single update 
-*/
+    /*
+    * Single update
+    */
     private function updateUID($update): bool
     {
         $uid = $update->update_id ?? false;
@@ -205,12 +204,12 @@ class ExtensionUpdateCommand extends AbstractCommand
 
         $minimum_stability = ComponentHelper::getComponent('com_installer')->getParams()->get('minimum_stability', Updater::STABILITY_STABLE);
 
-        $app = $this->getApplication();
+        $app        = $this->getApplication();
         $mvcFactory = $app->bootComponent('com_installer')->getMVCFactory();
-        if (is_callable([$app, 'setUserState'])) {
+        if (\is_callable([$app, 'setUserState'])) {
             $model  = $mvcFactory->createModel('Update', 'Administrator', ['ignore_request' => true]);
         } else {
-            $model = new UpdateModel(['ignore_request' => true],     $mvcFactory);
+            $model = new UpdateModel(['ignore_request' => true], $mvcFactory);
         }
 
         /* workaround 2
@@ -230,7 +229,7 @@ class ExtensionUpdateCommand extends AbstractCommand
         } else {
             $this->failInfo[] = $this->updateToRow($update);
         }
-        /* workarond 2 
+        /* workarond 2
         Factory::$application = $CLIApp;
 */
 

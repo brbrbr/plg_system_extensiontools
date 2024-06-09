@@ -12,14 +12,14 @@
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
+use Brambring\Plugin\System\Extensiontools\Extension\PluginActor;
 use Joomla\CMS\Extension\PluginInterface;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\Database\DatabaseInterface;
 use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
 use Joomla\Event\DispatcherInterface;
-use Brambring\Plugin\System\Extensiontools\Extension\PluginActor;
-use Joomla\Database\DatabaseInterface;
-use Joomla\CMS\Factory;
 
 return new class () implements ServiceProviderInterface {
     /**

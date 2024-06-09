@@ -14,18 +14,7 @@
 
 namespace Brambring\Plugin\System\Extensiontools\Trait;
 
-use Joomla\CMS\Installer\Installer;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Installer\InstallerHelper;
-use Joomla\Console\Command\AbstractCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Joomla\CMS\Extension\ExtensionHelper;
-use Joomla\Registry\Registry;
-use Joomla\CMS\Updater\Updater;
-use Joomla\CMS\Component\ComponentHelper;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -38,11 +27,10 @@ use Joomla\CMS\Component\ComponentHelper;
  */
 trait UpdateTrait
 {
-
     private $updateList;
-    private $successInfo = [];
-    private $failInfo = [];
-    private $skipInfo = [];
+    private $successInfo      = [];
+    private $failInfo         = [];
+    private $skipInfo         = [];
     private $allowedExtension = null;
 
     private function isValidUpdate(string $field, int $value): \stdClass|bool
@@ -67,7 +55,7 @@ trait UpdateTrait
         // $coreEid = ExtensionHelper::getExtensionRecord('joomla', 'file')->extension_id;
         //retrun $coreEid == $eid
         $coreExtensionIds = ExtensionHelper::getCoreExtensionIds();
-        return  in_array($eid, $coreExtensionIds);
+        return  \in_array($eid, $coreExtensionIds);
     }
 
 
@@ -75,7 +63,7 @@ trait UpdateTrait
     {
 
         if ($this->allowedExtension === null) {
-            $this->allowedExtension['all'] = $this->params->get('allowedAll', []);
+            $this->allowedExtension['all']   = $this->params->get('allowedAll', []);
             $this->allowedExtension['minor'] = $this->params->get('allowedMinor', []);
             $this->allowedExtension['patch'] = $this->params->get('allowedPatch', []);
             if (
@@ -89,16 +77,16 @@ trait UpdateTrait
             }
         }
 
-        if (in_array($update->extension_id, $this->allowedExtension['all'])) {
+        if (\in_array($update->extension_id, $this->allowedExtension['all'])) {
             return true;
         }
 
         $currentVersion = explode('.', $update->current_version);
-        $newVersion = explode('.', $update->version);
+        $newVersion     = explode('.', $update->version);
         //count may differ 2.0.0 -> 2.0.0.1
         if (
             \count($currentVersion) == 1
-            ||  \count($newVersion) == 1
+            || \count($newVersion) == 1
         ) {
             //no minor version
 
@@ -109,7 +97,7 @@ trait UpdateTrait
         }
 
 
-        if (in_array($update->extension_id, $this->allowedExtension['minor'])) {
+        if (\in_array($update->extension_id, $this->allowedExtension['minor'])) {
             return true;
         }
 
@@ -127,7 +115,7 @@ trait UpdateTrait
             return false;
         }
 
-        if (in_array($update->extension_id, $this->allowedExtension['patch'])) {
+        if (\in_array($update->extension_id, $this->allowedExtension['patch'])) {
             return true;
         }
 

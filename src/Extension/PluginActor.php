@@ -9,29 +9,29 @@
 
 namespace Brambring\Plugin\System\Extensiontools\Extension;
 
-use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\Database\DatabaseAwareTrait;
 use Brambring\Plugin\System\Extensiontools\Console\ExtensionUpdateCommand;
-use Joomla\Event\SubscriberInterface;
+use Brambring\Plugin\System\Extensiontools\Table\Transient;
+use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
+use Joomla\CMS\Access\Access;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Extension\ExtensionHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Access\Access;
 use Joomla\CMS\Mail\Exception\MailDisabledException;
+use Joomla\CMS\Mail\MailerFactoryInterface;
+use Joomla\CMS\Mail\MailHelper;
+use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Router\Route;
+use Joomla\CMS\Table\Asset;
+use Joomla\CMS\Updater\Updater;
 use Joomla\Component\Scheduler\Administrator\Event\ExecuteTaskEvent;
 use Joomla\Component\Scheduler\Administrator\Task\Status;
 use Joomla\Component\Scheduler\Administrator\Traits\TaskPluginTrait;
+use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Database\ParameterType;
-use PHPMailer\PHPMailer\Exception as phpMailerException;
-use Joomla\CMS\Mail\MailerFactoryInterface;
-use Joomla\CMS\Mail\MailHelper;
-use Joomla\CMS\Table\Asset;
+use Joomla\Event\SubscriberInterface;
 use Joomla\Utilities\ArrayHelper;
-use Brambring\Plugin\System\Extensiontools\Table\Transient;
-use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
-use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\Updater\Updater;
+use PHPMailer\PHPMailer\Exception as phpMailerException;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -77,9 +77,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     {
         $events = [
             \Joomla\Application\ApplicationEvents::BEFORE_EXECUTE => 'registerCommands',
-            'onTaskOptionsList'    => 'advertiseRoutines',
-            'onExecuteTask'        => 'standardRoutineHandler',
-            'onContentPrepareForm' => 'enhanceTaskItemForm',
+            'onTaskOptionsList'                                   => 'advertiseRoutines',
+            'onExecuteTask'                                       => 'standardRoutineHandler',
+            'onContentPrepareForm'                                => 'enhanceTaskItemForm',
         ];
 
         return $events;
@@ -94,7 +94,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
     public function getNonCoreExtensionsWithUpdateSite()
     {
-        if ($this->NonCoreExtensionsWithUpdateSite === Null) {
+        if ($this->NonCoreExtensionsWithUpdateSite === null) {
             $db    = $this->getDatabase();
             $query = $db->createQuery();
 
@@ -149,7 +149,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         return $this->NonCoreExtensionsWithUpdateSite;
     }
 
-    //need a copy since the function is protected in 
+    //need a copy since the function is protected in
     protected function translateExtensionName(&$item)
     {
         // @todo: Cleanup duplicated code. from com_installer/src/Model/InstallerModel.php
@@ -229,21 +229,21 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     {
 
 
-     
+
         $updates = $this->getAllowedUpdates();
 
         if (\count($updates) > 0) {
 
             $app = $this->getApplication();
             //  $app->getInput()->set('ignoreMessages',false);
-            $mvcFactory = $app->bootComponent('com_installer')->getMVCFactory();
-            $model  = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
+            $mvcFactory        = $app->bootComponent('com_installer')->getMVCFactory();
+            $model             = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
             $minimum_stability = ComponentHelper::getComponent('com_installer')->getParams()->get('minimum_stability', Updater::STABILITY_STABLE);
             $model->update(array_keys($updates), $minimum_stability);
 
 
             // Load the parameters.
-            $params = $event->getArgument('params');
+            $params     = $event->getArgument('params');
             $recipients = ArrayHelper::fromObject($params->recipients ?? [], false);
 
             $specificIds = array_map(function ($item) {
@@ -282,7 +282,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             }
 
 
-            if (is_callable([$app, 'getMessageQueue'])) {
+            if (\is_callable([$app, 'getMessageQueue'])) {
                 $messages = $app->getMessageQueue();
             }
 
@@ -293,12 +293,12 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             }
 
             $baseSubstitutions = [
-                'sitename'      => $this->getApplication()->get('sitename'),
+                'sitename' => $this->getApplication()->get('sitename'),
 
             ];
 
-            $body = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_HEADER', count($updates)), $baseSubstitutions) . "\n\n"];
-            $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SUBJECT', count($updates)), $baseSubstitutions);
+            $body    = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_HEADER', \count($updates)), $baseSubstitutions) . "\n\n"];
+            $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SUBJECT', \count($updates)), $baseSubstitutions);
 
             foreach ($updates as $updateValue) {
                 // Replace merge codes with their values
@@ -346,7 +346,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 }
                 $mail->setBody($body);
                 $mail->setSubject($subject);
-                $mail->SMTPDebug = false;
+                $mail->SMTPDebug   = false;
                 $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]];
                 $mail->isHtml(false);
                 $mail->send();
@@ -376,9 +376,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $this->logTask('ExtensionUpdates start');
 
         // Load the parameters.
-        $params = $event->getArgument('params');
-        $recipients = ArrayHelper::fromObject($params->recipients ?? [], false);
-        $sendOnce = (bool)($params->send_once ?? true);
+        $params      = $event->getArgument('params');
+        $recipients  = ArrayHelper::fromObject($params->recipients ?? [], false);
+        $sendOnce    = (bool)($params->send_once ?? true);
         $specificIds = array_map(function ($item) {
             return $item->user;
         }, $recipients);
@@ -404,8 +404,8 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
 
         $extensionUpdates = $this->getExtensionsWithUpdate();
-        $coreUpdates = $this->getExtensionsWithUpdate(true);
-        $allUpdates = array_merge($coreUpdates, $extensionUpdates);
+        $coreUpdates      = $this->getExtensionsWithUpdate(true);
+        $allUpdates       = array_merge($coreUpdates, $extensionUpdates);
 
         if (\count($allUpdates) == 0) {
             $this->logTask('No Updates found');
@@ -450,13 +450,13 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
 
         $baseSubstitutions = [
-            'sitename'      => $this->getApplication()->get('sitename'),
-            'updatelink'    => $baseURL,
+            'sitename'   => $this->getApplication()->get('sitename'),
+            'updatelink' => $baseURL,
         ];
 
 
-        $body = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_HEADER', count($allUpdates)), $baseSubstitutions) . "\n\n"];
-        $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_SUBJECT', count($allUpdates)), $baseSubstitutions);
+        $body    = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_HEADER', \count($allUpdates)), $baseSubstitutions) . "\n\n"];
+        $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_SUBJECT', \count($allUpdates)), $baseSubstitutions);
 
         foreach ($allUpdates as $updateValue) {
             // Replace merge codes with their values
@@ -477,12 +477,12 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         // Send the emails to the Super Users
 
         try {
-            $mail = clone Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
+            $mail             = clone Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
             $transientManager = new Transient($this->getDatabase(), $this->getDispatcher());
 
             $transientData = [
-                'body' => $body,
-                'subject' => $subject
+                'body'    => $body,
+                'subject' => $subject,
             ];
             $sha1 = $transientManager->getSha1($transientData);
 
@@ -493,9 +493,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                     $hasRecipient = true;
                     $mail->addBcc($superUser->email, $superUser->name);
                     $transientManager->bind([
-                        'sha1_hash' => $sha1,
-                        'item_id' => $itemId,
-                        'editor_user_id' => $superUser->id
+                        'sha1_hash'      => $sha1,
+                        'item_id'        => $itemId,
+                        'editor_user_id' => $superUser->id,
                     ]);
                     $transientManager->storeTransient($transientData, 'transient');
                     $transientManager->deleteOldVersions(1);
@@ -511,7 +511,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 }
                 $mail->setBody($body);
                 $mail->setSubject($subject);
-                $mail->SMTPDebug = false;
+                $mail->SMTPDebug   = false;
                 $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]];
                 $mail->isHtml(false);
                 $mail->send();
@@ -598,7 +598,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $ret = [];
 
         try {
-            $rootId = (new Asset($db))->getRootId();
+            $rootId    = (new Asset($db))->getRootId();
             $rules     = Access::getAssetRules($rootId)->getData();
             $rawGroups = $rules['core.admin']->getData();
             $groups    = [];

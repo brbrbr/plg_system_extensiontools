@@ -7,10 +7,10 @@
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
- namespace Brambring\Plugin\System\Extensiontools\Field;
+namespace Brambring\Plugin\System\Extensiontools\Field;
 
-use Joomla\CMS\Form\Field\UserField as JoomlaUserField;
 use Joomla\CMS\Access\Access;
+use Joomla\CMS\Form\Field\UserField as JoomlaUserField;
 use Joomla\CMS\Table\Asset;
 
 // phpcs:disable PSR1.Files.SideEffects

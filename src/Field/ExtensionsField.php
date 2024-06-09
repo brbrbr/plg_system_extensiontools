@@ -7,7 +7,7 @@
  * @license    GNU General Public License version 3 or later;
  */
 
- namespace Brambring\Plugin\System\Extensiontools\Field;
+namespace Brambring\Plugin\System\Extensiontools\Field;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -16,10 +16,9 @@
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Field\ListField;
 
-
 class ExtensionsField extends ListField
 {
-    protected $layout = 'joomla.form.field.list-fancy-select';
+    protected $layout           = 'joomla.form.field.list-fancy-select';
     public bool $is_select_list = true;
     public bool $use_ajax       = true;
     public function __construct($form = null)

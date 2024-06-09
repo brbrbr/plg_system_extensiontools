@@ -6,12 +6,11 @@
  *
  * @copyright   (C) 2008 Open Source Matters, Inc. <https://www.joomla.org>
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
- * 
+ *
  * This clone as the install function without setUserState
  */
 
 namespace Brambring\Plugin\System\Extensiontools\Joomla;
-
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Installer\Installer;
@@ -20,8 +19,8 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Updater\Update;
 use Joomla\CMS\Updater\Updater;
-use Joomla\Database\ParameterType;
 use Joomla\Component\Installer\Administrator\Model\UpdateModel as JoomlaUpdateModel;
+use Joomla\Database\ParameterType;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -34,8 +33,6 @@ use Joomla\Component\Installer\Administrator\Model\UpdateModel as JoomlaUpdateMo
  */
 class UpdateModel extends JoomlaUpdateModel
 {
-  
-
     /**
      * Update function.
      *
@@ -218,7 +215,7 @@ class UpdateModel extends JoomlaUpdateModel
 
         $this->setState('name', $installer->get('name'));
         $this->setState('result', $result);
-    
+
 
         // Cleanup the install files
         if (!is_file($package['packagefile'])) {
@@ -230,5 +227,5 @@ class UpdateModel extends JoomlaUpdateModel
         return $result;
     }
 
- 
+
 }
