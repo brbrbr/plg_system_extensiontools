@@ -8,7 +8,7 @@
     <folder>system</folder>
     <client>site</client>
     <version>24.51.05</version>
-    <infourl title="ExtensionUpdates Plugin">https://github.com/brbrbr/plg_system_extensiontools</infourl>
+    <infourl title="Extensiontools Plugin">https://github.com/brbrbr/plg_system_extensiontools</infourl>
     <downloads>
       <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/24.51.05/plg_system_extensiontools.zip</downloadurl>
     </downloads>

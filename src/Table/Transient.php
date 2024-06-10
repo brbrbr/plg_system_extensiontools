@@ -26,11 +26,11 @@ use Joomla\Event\DispatcherInterface;
  */
 class Transient extends Table
 {
-    public $character_count = 0;
-    public $version_data    = [];
-    public $version_note    = '';
-    public $sha1_hash       = null;
-    public $save_date       = "2000-01-01 01:01:01";
+    public int  $character_count = 0;
+    public string $version_data    = '';
+    public string $version_note    = '';
+    public ?string $sha1_hash       = null;
+    public string $save_date       = "2000-01-01 01:01:01";
 
     /**
      * Constructor
@@ -50,9 +50,8 @@ class Transient extends Table
     /**
      * Method to save a version snapshot to the content history table.
      *
-     * @param   string   $typeAlias  Typealias of the content type
-     * @param   integer  $id         ID of the content item
-     * @param   mixed    $data       Array or object of data that can be
+
+     * @param   array|object     $data       Array or object of data that can be
      *                               en- and decoded into JSON
      * @param   string   $note       Note for the version to store
      *
@@ -60,12 +59,11 @@ class Transient extends Table
      *
      * @since   4.0.0
      */
-    public function storeTransient($data, $note = 'transient')
+    public function storeTransient(array|object $data, string $note = 'transient')
     {
         $this->version_data = json_encode($data);
         $this->version_note = $note;
         $result             = $this->store();
-
         return $result;
     }
 
@@ -95,27 +93,29 @@ class Transient extends Table
      * Utility method to get the hash after removing selected values. This lets us detect changes other than
      * modified date (which will change on every save).
      *
-     * @param   object | array        $jsonData   Either an object or a string with json-encoded data
+     * @param   string| object | array        $data   Either an object or a string with json-encoded data
      *
      * @return  string  SHA1 hash on success. Empty string on failure.
      *
      * @since   3.2
      */
-    public function getSha1($jsonData)
+    public function getSha1(string|array|object $data) :string 
     {
-        $object = \is_object($jsonData) || \is_array($jsonData) ? $jsonData : json_decode($jsonData);
-        return sha1(json_encode($object));
+        $string = (\is_object($data) || \is_array($data)) ? json_encode($data):$data;
+        return sha1($string);
     }
 
     /**
      * Utility method to get a matching row based on the hash value and id columns.
      * This lets us check to make sure we don't save duplicate versions.
      *
-     * @return  string  SHA1 hash on success. Empty string on failure.
+     * @param   string        $itemId  - thus not an integer as everywhere else in Joomla
+     * @param   string        $sha1Hash  - thus not an integer as everywhere else in Joomla
+     * @return  ?object  SHA1 hash on success. Empty string on failure.
      *
      * @since   3.2
      */
-    public function getHashMatch(string $itemId, string $sha1Hash)
+    public function getHashMatch(string $itemId, string $sha1Hash) : ?object
     {
         $db       = $this->_db;
         $query    = $db->createQuery();
@@ -124,7 +124,7 @@ class Transient extends Table
             ->where($db->quoteName('item_id') . ' = :item_id')
             ->where($db->quoteName('sha1_hash') . ' = :sha1_hash')
             ->bind(':item_id', $itemId, ParameterType::STRING)
-            ->bind(':sha1_hash', $sha1Hash)
+            ->bind(':sha1_hash', $sha1Hash, ParameterType::STRING)
             ->setLimit(1);
 
         $db->setQuery($query);

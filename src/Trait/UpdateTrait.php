@@ -27,11 +27,11 @@ use Joomla\CMS\Extension\ExtensionHelper;
  */
 trait UpdateTrait
 {
-    private $updateList;
-    private $successInfo      = [];
-    private $failInfo         = [];
-    private $skipInfo         = [];
-    private $allowedExtension = null;
+    private ?array $updateList = null;
+    private array $successInfo      = [];
+    private array $failInfo         = [];
+    private array $skipInfo         = [];
+    private ?array $allowedExtension = null;
 
     private function isValidUpdate(string $field, int $value): \stdClass|bool
     {
@@ -74,6 +74,7 @@ trait UpdateTrait
                 \count($this->allowedExtension['patch']) == 0
             ) {
                 $this->getApplication()->enqueueMessage('No extensions allowed for automatic updates', 'warning');
+                return false;
             }
         }
 
@@ -121,7 +122,7 @@ trait UpdateTrait
 
         return false;
     }
-    private function getAllowedUpdates()
+    private function getAllowedUpdates(): array
     {
         $this->getUpdates(true);
         $uids = [];
@@ -141,7 +142,7 @@ trait UpdateTrait
         return $uids;
     }
 
-    private function getUpdates($purge = false)
+    private function getUpdates($purge = false): array | null
     {
         if ($this->updateList === null) {
             $this->getApplication()->getLanguage()->load('com_installer', JPATH_ADMINISTRATOR, null, true, true);
@@ -161,7 +162,7 @@ trait UpdateTrait
         return  $this->updateList;
     }
 
-    private function updateToRow($update)
+    private function updateToRow($update): array
     {
         return    [
             $update->extension_id,

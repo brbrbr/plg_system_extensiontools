@@ -9,6 +9,7 @@
 
 namespace Brambring\Plugin\System\Extensiontools\Extension;
 
+use Blc\Component\Blc\Administrator\Field\InfoField;
 use Brambring\Plugin\System\Extensiontools\Console\ExtensionUpdateCommand;
 use Brambring\Plugin\System\Extensiontools\Table\Transient;
 use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
@@ -227,11 +228,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
     private function updateAllExtensions(ExecuteTaskEvent $event): int
     {
-
-
-
         $updates = $this->getAllowedUpdates();
-
         if (\count($updates) > 0) {
 
             $app = $this->getApplication();
@@ -288,7 +285,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
 
             if (empty($superUsers)) {
-                $this->logTask('No recipients found');
+                $this->logTask('No recipients found','warning');
                 return Status::OK;
             }
 
@@ -352,7 +349,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 $mail->send();
             } catch (MailDisabledException | phpMailerException $exception) {
                 try {
-                    $this->logTask($jLanguage->_($exception->getMessage()));
+                    $this->logTask($jLanguage->_($exception->getMessage()),'error');
                 } catch (\RuntimeException $exception) {
                     return Status::KNOCKOUT;
                 }
@@ -373,7 +370,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     private function checkExtensionUpdates(ExecuteTaskEvent $event): int
     {
 
-        $this->logTask('ExtensionUpdates start');
+        $this->logTask('check Extension Updates start','info');
 
         // Load the parameters.
         $params      = $event->getArgument('params');
@@ -408,7 +405,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $allUpdates       = array_merge($coreUpdates, $extensionUpdates);
 
         if (\count($allUpdates) == 0) {
-            $this->logTask('No Updates found');
+            $this->logTask('No Updates found','info');
             return Status::OK;
         }
 
@@ -442,7 +439,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         }
 
         if (empty($superUsers)) {
-            $this->logTask('No recipients found');
+            $this->logTask('No recipients found','error');
             return Status::KNOCKOUT;
         }
 
@@ -488,7 +485,8 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
             $hasRecipient = false;
             foreach ($superUsers as $superUser) {
-                $itemId = 'ExtensionUpdates.email.' . $superUser->id;
+                $itemId = 'ExtensionTools.email.' . $superUser->id;
+              
                 if ($sendOnce === false || !$transientManager->getHashMatch($itemId, $sha1)) {
                     $hasRecipient = true;
                     $mail->addBcc($superUser->email, $superUser->name);
@@ -499,6 +497,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                     ]);
                     $transientManager->storeTransient($transientData, 'transient');
                     $transientManager->deleteOldVersions(1);
+                
                 }
             }
 
@@ -518,14 +517,14 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             }
         } catch (MailDisabledException | phpMailerException $exception) {
             try {
-                $this->logTask($jLanguage->_($exception->getMessage()));
+                $this->logTask($jLanguage->_($exception->getMessage()),'error');
             } catch (\RuntimeException $exception) {
                 return Status::KNOCKOUT;
             }
         }
 
 
-        $this->logTask('ExtensionUpdates end');
+        $this->logTask('check Extension Updates end','info');
 
         return Status::OK;
     }

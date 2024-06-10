@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form >
 	<fields name="params">
-		<fieldset name="task_params" addfieldprefix="Brambring\Plugin\Task\ExtensionUpdates\Field">
+		<fieldset name="task_params" addfieldprefix="Brambring\Plugin\Task\Extensiontools\Field">
 			<field name="recipients" showon="email!:0" type="subform" label="PLG_SYSTEM_EXTENSIONTOOLS_EMAILS_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_EMAIL_DESC" multiple="true">
 				<form>
 				<fieldset addfieldprefix="Brambring\Plugin\System\Extensiontools\Field">
