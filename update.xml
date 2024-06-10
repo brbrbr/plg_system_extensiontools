@@ -7,12 +7,12 @@
     <type>plugin</type>
     <folder>system</folder>
     <client>site</client>
-    <version>24.51.05</version>
+    <version>24.51.06</version>
     <infourl title="Extensiontools Plugin">https://github.com/brbrbr/plg_system_extensiontools</infourl>
     <downloads>
-      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/24.51.05/plg_system_extensiontools.zip</downloadurl>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/24.51.06/plg_system_extensiontools.zip</downloadurl>
     </downloads>
-    <sha512>4c3862b3c79db4c2d3514d8c6cd1bd88e796b5a83fc968ca6c6818477087941dc7179ce0ccc52d9f63e7125ea7d14b3a832644b6cadeb94f527b0de19df8a714</sha512>
+    <sha512>378b7702c1ad285aa26d41af3fade5cc0066913600d0e5622a78e86cca9a3c632df77ff03c2429c325076f4693b8157183434389a4ba259abe2c6c81166acb71</sha512>
     <tags>
       <tag>stable</tag>
     </tags>
