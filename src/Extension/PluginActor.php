@@ -360,7 +360,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     /**
      * Method to send the update notification.
      *
-     * @param   ExecuteTaskEvent  $event  The `onExecuteTask` event.
+     * @param   ExecuteTaskEvent  $event  The 'onExecuteTask' event.
      *
      * @return integer  The routine exit code.
      *
@@ -532,7 +532,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     /**
      * Method to replace tags like in MailTemplate
      *
-     * @param   string  $text  The `language string`.
+     * @param   string  $text  The 'language string'.
      * @param   array  $tags  key replacment pairs
      *
      * @return string  The text with replaces tags
@@ -625,7 +625,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $query = $db->createQuery()
                 ->select($db->quoteName(['id', 'name', 'email']))
                 ->from($db->quoteName('#__users', 'u'))
-                ->join('INNER', $db->quoteName('#__user_usergroup_map', 'm'), '`u`.`id` = `m`.`user_id`')
+                ->join('INNER', $db->quoteName('#__user_usergroup_map', 'm'), $db->quoteName('u.id') . ' = ' .$db->quoteName('m.user_id') )
                 ->whereIn($db->quoteName('m.group_id'), $groups, ParameterType::INTEGER)
                 ->where($db->quoteName('block') . ' = 0');
 
