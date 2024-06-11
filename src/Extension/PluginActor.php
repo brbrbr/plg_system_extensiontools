@@ -285,7 +285,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
 
             if (empty($superUsers)) {
-                $this->logTask('No recipients found','warning');
+                $this->logTask('No recipients found', 'warning');
                 return Status::OK;
             }
 
@@ -349,7 +349,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 $mail->send();
             } catch (MailDisabledException | phpMailerException $exception) {
                 try {
-                    $this->logTask($jLanguage->_($exception->getMessage()),'error');
+                    $this->logTask($jLanguage->_($exception->getMessage()), 'error');
                 } catch (\RuntimeException $exception) {
                     return Status::KNOCKOUT;
                 }
@@ -370,7 +370,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     private function checkExtensionUpdates(ExecuteTaskEvent $event): int
     {
 
-        $this->logTask('check Extension Updates start','info');
+        $this->logTask('check Extension Updates start', 'info');
 
         // Load the parameters.
         $params      = $event->getArgument('params');
@@ -405,7 +405,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $allUpdates       = array_merge($coreUpdates, $extensionUpdates);
 
         if (\count($allUpdates) == 0) {
-            $this->logTask('No Updates found','info');
+            $this->logTask('No Updates found', 'info');
             return Status::OK;
         }
 
@@ -439,7 +439,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         }
 
         if (empty($superUsers)) {
-            $this->logTask('No recipients found','error');
+            $this->logTask('No recipients found', 'error');
             return Status::KNOCKOUT;
         }
 
@@ -486,7 +486,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $hasRecipient = false;
             foreach ($superUsers as $superUser) {
                 $itemId = 'ExtensionTools.email.' . $superUser->id;
-              
+
                 if ($sendOnce === false || !$transientManager->getHashMatch($itemId, $sha1)) {
                     $hasRecipient = true;
                     $mail->addBcc($superUser->email, $superUser->name);
@@ -497,7 +497,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                     ]);
                     $transientManager->storeTransient($transientData, 'transient');
                     $transientManager->deleteOldVersions(1);
-                
+
                 }
             }
 
@@ -517,14 +517,14 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             }
         } catch (MailDisabledException | phpMailerException $exception) {
             try {
-                $this->logTask($jLanguage->_($exception->getMessage()),'error');
+                $this->logTask($jLanguage->_($exception->getMessage()), 'error');
             } catch (\RuntimeException $exception) {
                 return Status::KNOCKOUT;
             }
         }
 
 
-        $this->logTask('check Extension Updates end','info');
+        $this->logTask('check Extension Updates end', 'info');
 
         return Status::OK;
     }
@@ -625,7 +625,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $query = $db->createQuery()
                 ->select($db->quoteName(['id', 'name', 'email']))
                 ->from($db->quoteName('#__users', 'u'))
-                ->join('INNER', $db->quoteName('#__user_usergroup_map', 'm'), $db->quoteName('u.id') . ' = ' .$db->quoteName('m.user_id') )
+                ->join('INNER', $db->quoteName('#__user_usergroup_map', 'm'), $db->quoteName('u.id') . ' = ' .$db->quoteName('m.user_id'))
                 ->whereIn($db->quoteName('m.group_id'), $groups, ParameterType::INTEGER)
                 ->where($db->quoteName('block') . ' = 0');
 

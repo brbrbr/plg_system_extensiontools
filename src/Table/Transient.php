@@ -99,9 +99,9 @@ class Transient extends Table
      *
      * @since   3.2
      */
-    public function getSha1(string|array|object $data) :string 
+    public function getSha1(string|array|object $data): string
     {
-        $string = (\is_object($data) || \is_array($data)) ? json_encode($data):$data;
+        $string = (\is_object($data) || \is_array($data)) ? json_encode($data) : $data;
         return sha1($string);
     }
 
@@ -115,7 +115,7 @@ class Transient extends Table
      *
      * @since   3.2
      */
-    public function getHashMatch(string $itemId, string $sha1Hash) : ?object
+    public function getHashMatch(string $itemId, string $sha1Hash): ?object
     {
         $db       = $this->_db;
         $query    = $db->createQuery();
