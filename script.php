@@ -82,7 +82,11 @@ return new class () implements
                         // Check for the minimum Joomla version before continuing
                         if (version_compare(JVERSION, $this->minimumJoomlaVersion, '<')) {
                             Log::add(
-                                Text::sprintf('JLIB_INSTALLER_MINIMUM_JOOMLA', $this->minimumJoomlaVersion),
+                                Text::sprintf('JLIB_INSTALLER_MINIMUM_JOOMLA', $this->minimumJoomlaVersion)
+                                . '<br><br>' .
+                                Text::_('PLG_SYSTEM_EXTENSIONTOOLS_OLDER', $this->minimumJoomlaVersion),
+                                
+                                
                                 Log::ERROR,
                                 'jerror'
                             );
