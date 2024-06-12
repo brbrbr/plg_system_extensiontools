@@ -2,7 +2,7 @@
 <updates>
   <update>
     <name>System - Extension Tools</name>
-    <description>Extension Tool Plugin. Allows updating extensions from CLI and Scheduled Tasks</description>
+    <description>Extension Tool Plugin. Allows updating extensions from CLI and Scheduled Tasks - Joomla 4.4 - 5.1 Version</description>
     <element>extensiontools</element>
     <type>plugin</type>
     <folder>system</folder>
@@ -21,9 +21,9 @@
     <php_minimum>8.1.0</php_minimum>
     <targetplatform name="joomla" version="(5.(0|1)|4.(4))"/>
   </update>
-   <update>
+  <update>
     <name>System - Extension Tools</name>
-    <description>Extension Tool Plugin. Allows updating extensions from CLI and Scheduled Tasks</description>
+    <description>Extension Tool Plugin. Allows updating extensions from CLI and Scheduled Tasks. Joomla 5.1 Version</description>
     <element>extensiontools</element>
     <type>plugin</type>
     <folder>system</folder>
@@ -33,6 +33,7 @@
     <downloads>
       <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.1.3/plg_system_extensiontools.zip</downloadurl>
     </downloads>
+    <sha512>c92c386b3c4bbf641814911d42146243c1ad0386040a3d22c74647a1dffa1a38cbf13d38df8416aa1d679a386039faadfc314c93296249c58119ee6edc55f046</sha512>
     <tags>
       <tag>stable</tag>
     </tags>
