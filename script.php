@@ -35,6 +35,9 @@ return new class () implements
                 // phpcs:enable PSR12.Classes.AnonClassDeclaration
                 protected AdministratorApplication $app;
                 protected DatabaseDriver $db;
+                private $minimumJoomlaVersion = '5.1';
+                private $maximumJoomlaVersion = '5.1.999';
+                private $minimumPHPVersion = '8.1';
 
                 public function __construct(AdministratorApplication $app)
                 {
@@ -65,6 +68,38 @@ return new class () implements
                 }
                 public function preflight(string $type, InstallerAdapter $adapter): bool
                 {
+
+                    if ($type !== 'uninstall') {
+                        // Check for the minimum PHP version before continuing
+                        if (version_compare(PHP_VERSION, $this->minimumPHPVersion, '<')) {
+                            Log::add(
+                                Text::sprintf('JLIB_INSTALLER_MINIMUM_PHP', $this->minimumPHPVersion),
+                                Log::ERROR,
+                                'jerror'
+                            );
+                            return false;
+                        }
+                        // Check for the minimum Joomla version before continuing
+                        if (version_compare(JVERSION, $this->minimumJoomlaVersion, '<')) {
+                            Log::add(
+                                Text::sprintf('JLIB_INSTALLER_MINIMUM_JOOMLA', $this->minimumJoomlaVersion),
+                                Log::ERROR,
+                                'jerror'
+                            );
+                            return false;
+                        }
+
+                           // Check for the maximum Joomla version before continuing
+                           if (version_compare(JVERSION, $this->maximumJoomlaVersion, '>')) {
+                            Log::add(
+                                Text::sprintf('JLIB_INSTALLER_MAXIMUM_JOOMLA', JVERSION),
+                                Log::ERROR,
+                                'jerror'
+                            );
+                            return false;
+                        }
+
+                    }
                     return true;
                 }
                 public function postflight(string $type, InstallerAdapter $adapter): bool
