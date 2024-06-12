@@ -12,7 +12,7 @@
     <downloads>
       <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/4.4.1/plg_system_extensiontools.zip</downloadurl>
     </downloads>
-    <sha512>b0fee631c366c47bd7be4be85ee80d0d36694533e213d071e56f93414f37454afdf8cdb653948d651579afa7ab6fd70c200a92f2d88f0b132a388dc7b0dae5e3</sha512>
+    <sha512>7d1839cb1d8dfc6932a3bf946dd120131200ac68bc9e0336ec7c1e7546f64e8cd3579b0928c029e0cfc5a7dd6f56af2882c079b12268018d3cf955e06c2eba18</sha512>
     <tags>
       <tag>stable</tag>
     </tags>
@@ -33,7 +33,6 @@
     <downloads>
       <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.1.1/plg_system_extensiontools.zip</downloadurl>
     </downloads>
-    <sha512>b0fee631c366c47bd7be4be85ee80d0d36694533e213d071e56f93414f37454afdf8cdb653948d651579afa7ab6fd70c200a92f2d88f0b132a388dc7b0dae5e3</sha512>
     <tags>
       <tag>stable</tag>
     </tags>

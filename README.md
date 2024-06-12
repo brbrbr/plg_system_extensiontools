@@ -63,4 +63,8 @@ Updating on patch level should be safe, on minor level safe enough. Major update
 
 Additional labels for pre-release and build metadata might be added as suffixes to the MAJOR.MINOR.PATCH format. These are not considered by the plugin.
 
+## Error notifications
+
+In the plugin settings you can configure email notification on (fatal) web errors. 
+
 https://brokenlinkchecker.dev/extensions/extension-tools

@@ -24,16 +24,18 @@ use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
 
 // phpcs:disable PSR12.Classes.AnonClassDeclaration
-return new class () implements
-    ServiceProviderInterface {
+return new class() implements
+    ServiceProviderInterface
+{
     // phpcs:enable PSR12.Classes.AnonClassDeclaration
     public function register(Container $container)
     {
         $container->set(
             InstallerScriptInterface::class,
             // phpcs:disable PSR12.Classes.AnonClassDeclaration
-            new class ($container->get(AdministratorApplication::class)) implements
-                InstallerScriptInterface {
+            new class($container->get(AdministratorApplication::class)) implements
+                InstallerScriptInterface
+            {
                 // phpcs:enable PSR12.Classes.AnonClassDeclaration
                 protected AdministratorApplication $app;
                 protected DatabaseDriver $db;
@@ -51,10 +53,10 @@ return new class () implements
                 {
                     $query = $this->db->getquery(true);
                     $query->update($this->db->quoteName('#__extensions'))
-                    ->set($this->db->quoteName('enabled') . ' = 1')
-                    ->where($this->db->quoteName('type') . ' = ' . $this->db->quote('plugin'))
-                    ->where($this->db->quoteName('folder') .' = '. $this->db->quote($adapter->group))
-                    ->where($this->db->quoteName('element') . ' = '. $this->db->quote($adapter->element));
+                        ->set($this->db->quoteName('enabled') . ' = 1')
+                        ->where($this->db->quoteName('type') . ' = ' . $this->db->quote('plugin'))
+                        ->where($this->db->quoteName('folder') . ' = ' . $this->db->quote($adapter->group))
+                        ->where($this->db->quoteName('element') . ' = ' . $this->db->quote($adapter->element));
                     $this->db->setQuery($query)->execute();
                     return true;
                 }
@@ -84,15 +86,17 @@ return new class () implements
                         // Check for the minimum Joomla version before continuing
                         if (version_compare(JVERSION, $this->minimumJoomlaVersion, '<')) {
                             Log::add(
-                                Text::sprintf('JLIB_INSTALLER_MINIMUM_JOOMLA', $this->minimumJoomlaVersion),
+                                Text::sprintf('JLIB_INSTALLER_MINIMUM_JOOMLA', $this->minimumJoomlaVersion)
+                                    . '<br><br>' .
+                                    Text::_('PLG_SYSTEM_EXTENSIONTOOLS_OLDER', $this->minimumJoomlaVersion),
                                 Log::ERROR,
                                 'jerror'
                             );
                             return false;
                         }
 
-                           // Check for the maximum Joomla version before continuing
-                           if (version_compare(JVERSION, $this->maximumJoomlaVersion, '>')) {
+                        // Check for the maximum Joomla version before continuing
+                        if (version_compare(JVERSION, $this->maximumJoomlaVersion, '>')) {
                             Log::add(
                                 Text::sprintf('JLIB_INSTALLER_MAXIMUM_JOOMLA', JVERSION),
                                 Log::ERROR,
@@ -100,7 +104,6 @@ return new class () implements
                             );
                             return false;
                         }
-
                     }
                     return true;
                 }

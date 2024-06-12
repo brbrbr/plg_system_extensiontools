@@ -2,7 +2,7 @@
 
 /**
  * @package  System.Extensiontools
- * @version    24.51
+ * @version    5.1
  * @copyright  2024 Bram Brambring
  * @license    GNU General Public License version 3 or later;
  */
@@ -32,7 +32,8 @@ use Joomla\Database\ParameterType;
 use Joomla\Event\SubscriberInterface;
 use Joomla\Utilities\ArrayHelper;
 use PHPMailer\PHPMailer\Exception as phpMailerException;
-
+use Joomla\Event;
+use Joomla\CMS\Event\ErrorEvent;
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
@@ -76,6 +77,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     public static function getSubscribedEvents(): array
     {
         $events = [
+            'onError'           => ['onError', Event\Priority::MAX],
             \Joomla\Application\ApplicationEvents::BEFORE_EXECUTE => 'registerCommands',
             'onTaskOptionsList'                                   => 'advertiseRoutines',
             'onExecuteTask'                                       => 'standardRoutineHandler',
@@ -83,6 +85,105 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         ];
 
         return $events;
+    }
+
+    public function onError(ErrorEvent $event)
+    {
+
+
+
+        //params is not aviaible in subscribe events
+        if (!(bool)$this->params->get('emailonerror', false)) {
+            return;
+        }
+
+
+        $recipients = ArrayHelper::fromObject($this->params->get('recipients', []), false);
+
+        $specificIds = array_map(function ($item) {
+            return $item->user;
+        }, $recipients);
+
+        $this->loadLanguages($this->params->get('language_override', ''));
+
+        $superUsers = [];
+
+        if (!empty($specificIds)) {
+            $superUsers = $this->getSuperUsers($specificIds);
+        }
+
+        if (empty($superUsers)) {
+            $superUsers = $this->getSuperUsers();
+        }
+        $app = $this->getApplication();
+
+        if (empty($superUsers)) {
+
+            return;
+        }
+        $error = $event->getError();
+        $baseSubstitutions = [
+            'sitename' => $this->getApplication()->get('sitename'),
+
+        ];
+
+        $body    = [$this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_ERROR_MAIL_HEADER'), $baseSubstitutions) . "\n\n"];
+        $subject = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_ERROR_MAIL_SUBJECT'), $baseSubstitutions);
+
+        if (\is_callable([$app, 'getMessageQueue'])) {
+            $messageQueue = $app->getMessageQueue();
+            if ($messageQueue) {
+                $body[] = json_encode($messageQueue, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            }
+        }
+        $body[] = "\n";
+        $body[] = $error->getMessage();
+        $body = implode("\n", $body);
+        try {
+            $mail             = clone Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
+            $transientManager = new Transient($this->getDatabase(), $this->getDispatcher());
+
+            $transientData = [
+                'body'    => $body,
+                'subject' => $subject,
+            ];
+         
+            $sha1 = $transientManager->getSha1($transientData);
+
+            $hasRecipient = false;
+            foreach ($superUsers as $superUser) {
+                $itemId = 'ExtensionTools.error.' . $superUser->id;
+
+                if (!$transientManager->getHashMatch($itemId, $sha1)) {
+                    $hasRecipient = true;
+                    $mail->addBcc($superUser->email, $superUser->name);
+                    $transientManager->bind([
+                        'sha1_hash'      => $sha1,
+                        'item_id'        => $itemId,
+                        'editor_user_id' => $superUser->id,
+                    ]);
+                    $transientManager->storeTransient($transientData, 'transient');
+                    $transientManager->deleteOldVersions(1);
+                }
+            }
+
+            if ($hasRecipient) {
+                $mailfrom =    $app->get('mailfrom');
+                $fromname =   $app->get('fromname');
+
+                if (MailHelper::isEmailAddress($mailfrom)) {
+                    $mail->setSender(MailHelper::cleanLine($mailfrom), MailHelper::cleanLine($fromname), false);
+                }
+                $mail->setBody($body);
+                $mail->setSubject($subject);
+                $mail->SMTPDebug   = false;
+                $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]];
+                $mail->isHtml(false);
+                $mail->send();
+            }
+        } catch (MailDisabledException | phpMailerException $exception) {
+            return;
+        }
     }
 
     public function registerCommands($event): void
@@ -123,7 +224,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                     $db->quoteName('ue.update_site_id') . ' = ' . $db->quoteName('us.update_site_id')
                 )
 
-
                 ->whereNotIn($db->quoteName('ex.extension_id'), ExtensionHelper::getCoreExtensionIds());
 
             $db->setQuery($query);
@@ -153,7 +253,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     protected function translateExtensionName(&$item)
     {
         // @todo: Cleanup duplicated code. from com_installer/src/Model/InstallerModel.php
-        $lang = Factory::getApplication()->getLanguage();
+        $lang = $this->getApplication()->getLanguage();
         $path = $item->client_id ? JPATH_ADMINISTRATOR : JPATH_SITE;
 
         $extension = $item->element;
@@ -249,7 +349,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $specificIds = array_map(function ($item) {
                 return $item->user;
             }, $recipients);
-            $forcedLanguage = $params->language_override ?? '';
+
             /*
            * Load the appropriate language. We try to load English (UK), the current user's language and the forced
            * language preference, in this order. This ensures that we'll never end up with untranslated strings in the
@@ -257,20 +357,8 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
            * following code does DO NOT TOUCH IT. It makes the difference between a hobbyist CMS and a professional
            * solution!
            */
-            $jLanguage = $this->getApplication()->getLanguage();
-            $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, 'en-GB', true, true);
-            $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, null, true, true);
-            $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, 'en-GB', true, true);
-            $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, null, true, true);
-            $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, 'en-GB', true, true);
-            $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, null, true, false);
+            $this->loadLanguages($params->language_override ?? '');
 
-            // Then try loading the preferred (forced) language
-            if (!empty($forcedLanguage)) {
-                $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
-                $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
-                $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
-            }
             $superUsers = [];
 
             if (!empty($specificIds)) {
@@ -291,14 +379,14 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 $this->logTask('No recipients found', 'warning');
                 return Status::OK;
             }
-
+            $updateCount = \count($updates);
             $baseSubstitutions = [
                 'sitename' => $this->getApplication()->get('sitename'),
-
+                'count' => $updateCount,
             ];
 
-            $body    = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_HEADER', \count($updates)), $baseSubstitutions) . "\n\n"];
-            $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SUBJECT', \count($updates)), $baseSubstitutions);
+            $body    = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_HEADER', $updateCount), $baseSubstitutions) . "\n\n"];
+            $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SUBJECT', $updateCount), $baseSubstitutions);
 
             foreach ($updates as $updateValue) {
                 // Replace merge codes with their values
@@ -352,13 +440,31 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 $mail->send();
             } catch (MailDisabledException | phpMailerException $exception) {
                 try {
-                    $this->logTask($jLanguage->_($exception->getMessage()), 'error');
+                    $this->logTask($exception->getMessage(), 'error');
                 } catch (\RuntimeException $exception) {
                     return Status::KNOCKOUT;
                 }
             }
         }
         return Status::OK;
+    }
+
+    private function loadLanguages($forcedLanguage)
+    {
+        $jLanguage = $this->getApplication()->getLanguage();
+        $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, 'en-GB', true, true);
+        $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, null, true, true);
+        $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, 'en-GB', true, true);
+        $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, null, true, true);
+        $jLanguage->load('plg_system_extensiontools', JPATH_ADMINISTRATOR, 'en-GB', true, true);
+        $jLanguage->load('plg_system_extensiontools', JPATH_ADMINISTRATOR, null, true, false);
+
+        // Then try loading the preferred (forced) language
+        if (!empty($forcedLanguage)) {
+            $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
+            $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
+            $jLanguage->load('plg_system_extensiontools', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
+        }
     }
     /**
      * Method to send the update notification.
@@ -372,9 +478,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
      */
     private function checkExtensionUpdates(ExecuteTaskEvent $event): int
     {
-
         $this->logTask('check Extension Updates start', 'info');
-
         // Load the parameters.
         $params      = $event->getArgument('params');
         $recipients  = ArrayHelper::fromObject($params->recipients ?? [], false);
@@ -382,7 +486,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $specificIds = array_map(function ($item) {
             return $item->user;
         }, $recipients);
-        $forcedLanguage = $params->language_override ?? '';
+
         /*
          * Load the appropriate language. We try to load English (UK), the current user's language and the forced
          * language preference, in this order. This ensures that we'll never end up with untranslated strings in the
@@ -390,17 +494,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
          * following code does DO NOT TOUCH IT. It makes the difference between a hobbyist CMS and a professional
          * solution!
          */
-        $jLanguage = $this->getApplication()->getLanguage();
-        $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, 'en-GB', true, true);
-        $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, null, true, true);
-        $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, 'en-GB', true, true);
-        $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, null, true, false);
 
-        // Then try loading the preferred (forced) language
-        if (!empty($forcedLanguage)) {
-            $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
-            $jLanguage->load('PLG_SYSTEM_EXTENSIONTOOLS', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
-        }
+
+
 
 
         $extensionUpdates = $this->getExtensionsWithUpdate();
@@ -411,6 +507,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $this->logTask('No Updates found', 'info');
             return Status::OK;
         }
+        $this->loadLanguages($params->language_override ?? '');
 
         $baseURL = Route::link('administrator', 'index.php?option=com_cpanel&view=cpanel&dashboard=system', xhtml: false, absolute: true);
 
@@ -445,18 +542,17 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $this->logTask('No recipients found', 'error');
             return Status::KNOCKOUT;
         }
-
-
-
-
+        $updateCount = \count($allUpdates);
         $baseSubstitutions = [
-            'sitename'   => $this->getApplication()->get('sitename'),
+            'sitename' => $this->getApplication()->get('sitename'),
+            'count' => $updateCount,
             'updatelink' => $baseURL,
         ];
 
 
-        $body    = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_HEADER', \count($allUpdates)), $baseSubstitutions) . "\n\n"];
-        $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_SUBJECT', \count($allUpdates)), $baseSubstitutions);
+
+        $body    = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_HEADER', $updateCount), $baseSubstitutions) . "\n\n"];
+        $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_SUBJECT', $updateCount), $baseSubstitutions);
 
         foreach ($allUpdates as $updateValue) {
             // Replace merge codes with their values
@@ -518,7 +614,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             }
         } catch (MailDisabledException | phpMailerException $exception) {
             try {
-                $this->logTask($jLanguage->_($exception->getMessage()), 'error');
+                $this->logTask($exception->getMessage(), 'error');
             } catch (\RuntimeException $exception) {
                 return Status::KNOCKOUT;
             }
