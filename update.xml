@@ -12,7 +12,7 @@
     <downloads>
       <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/4.4.2/plg_system_extensiontools.zip</downloadurl>
     </downloads>
-    <sha512>94e69146870508d6123c3685c223b3433dbc17c519f38c208be2d459dab576bdf8284e79287db97a061d02a963f4aff4098ba709aa89e7e24c7d24a1c4d4148d</sha512>
+    <sha512>26afd76994389dc67c556ec58f5a0b159e1c3b32fe666dacab9dbc9f9673e7853a4e700fa08faa526f3cf58bdbeb08e44033932c9fadf10feb5373f93d8f8f93</sha512>
     <tags>
       <tag>stable</tag>
     </tags>
@@ -21,17 +21,17 @@
     <php_minimum>8.1.0</php_minimum>
     <targetplatform name="joomla" version="(5.(0|1)|4.(4))"/>
   </update>
-  <update>
+   <update>
     <name>System - Extension Tools</name>
     <description>Extension Tool Plugin. Allows updating extensions from CLI and Scheduled Tasks</description>
     <element>extensiontools</element>
     <type>plugin</type>
     <folder>system</folder>
     <client>site</client>
-    <version>5.1.1</version>
+    <version>5.1.2</version>
     <infourl title="Extensiontools Plugin">https://github.com/brbrbr/plg_system_extensiontools</infourl>
     <downloads>
-      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.1.1/plg_system_extensiontools.zip</downloadurl>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.1.2/plg_system_extensiontools.zip</downloadurl>
     </downloads>
     <tags>
       <tag>stable</tag>
