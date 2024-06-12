@@ -1,8 +1,8 @@
 #!/bin/bash
 EXTENSION_ZIP_FILENAME="build/plg_system_extensiontools.zip"
 EXTENSION_ELEMENT="extensiontools"
-PATTERN="24\.51\.[0-9]\+"
-VERSION="5.1.8"
+PATTERN="5\.1\.[0-9]\+"
+VERSION="5.1.1"
 if [ ! -f "$EXTENSION_ELEMENT.xml" ]; then cd ..; fi
 if [ -f "$EXTENSION_ZIP_FILENAME" ]; then rm $EXTENSION_ZIP_FILENAME; fi
 
