@@ -7,12 +7,12 @@
     <type>plugin</type>
     <folder>system</folder>
     <client>site</client>
-    <version>4.4.2</version>
+    <version>4.4.3</version>
     <infourl title="Extensiontools Plugin">https://github.com/brbrbr/plg_system_extensiontools</infourl>
     <downloads>
-      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/4.4.2/plg_system_extensiontools.zip</downloadurl>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/4.4.3/plg_system_extensiontools.zip</downloadurl>
     </downloads>
-    <sha512>26afd76994389dc67c556ec58f5a0b159e1c3b32fe666dacab9dbc9f9673e7853a4e700fa08faa526f3cf58bdbeb08e44033932c9fadf10feb5373f93d8f8f93</sha512>
+    <sha512>dcaf1318eebfc38cf908b281611e883349a42f8131408cbe98343f8931285c077e23492edd1e14a848e646f74ddcf660215251ed19da3812047b385a0691a79b</sha512>
     <tags>
       <tag>stable</tag>
     </tags>
@@ -28,10 +28,10 @@
     <type>plugin</type>
     <folder>system</folder>
     <client>site</client>
-    <version>5.1.2</version>
+    <version>5.1.3</version>
     <infourl title="Extensiontools Plugin">https://github.com/brbrbr/plg_system_extensiontools</infourl>
     <downloads>
-      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.1.2/plg_system_extensiontools.zip</downloadurl>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.1.3/plg_system_extensiontools.zip</downloadurl>
     </downloads>
     <tags>
       <tag>stable</tag>
