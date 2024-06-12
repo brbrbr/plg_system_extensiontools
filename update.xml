@@ -12,7 +12,7 @@
     <downloads>
       <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/24.51.07/plg_system_extensiontools.zip</downloadurl>
     </downloads>
-    <sha512>869cd896a30b5e361b0f94cc418d346f148d3e23aec60397495d76fbe906adc98d6e270e51ddf1bc694b0f13a8991a679be79433b380cc35bd5b7dec9cbe975b</sha512>
+    <sha512>1ace3e38f9db1f4f4505b6750e44077a0185f3c2d802631fb09c2db71841b05342a74fae2aa3d119d0be44518ce65b919cf8fdfaba7124b080e6c6febffa43ea</sha512>
     <tags>
       <tag>stable</tag>
     </tags>
