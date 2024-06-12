@@ -6,7 +6,7 @@
  * (C) 2020 Open Source Matters, Inc. <https://www.joomla.org>
  * GNU General Public License version 2 or later; see LICENSE.txt
  *
- * @version   24.51
+ * @version   5.1
  * @author    Bram <bram@brokenlinkchecker.dev>
  * @copyright 2024 Bram Brambring (https://brambring.nl)
  * @license   GNU General Public License version 3 or later;
