@@ -2,7 +2,7 @@
 <updates>
   <update>
     <name>System - Extension Tools</name>
-    <description>Extension Tool Plugin. Allows updating extensions from CLI and Scheduled Tasks</description>
+    <description>Extension Tool Plugin. Allows updating extensions from CLI and Scheduled Tasks. Joomla 5.1 Versipn</description>
     <element>extensiontools</element>
     <type>plugin</type>
     <folder>system</folder>
