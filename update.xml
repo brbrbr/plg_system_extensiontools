@@ -12,7 +12,7 @@
     <downloads>
       <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/24.44.01/plg_system_extensiontools.zip</downloadurl>
     </downloads>
-    <sha512>4444a587dc7a858adc326bce9b57822c93a55337b8527266ea2694a2db1bb22f9edb9890bd67dd5378550914cd21f3929a1522391a0b9dc93fc4c0acfac2bc7c</sha512>
+    <sha512>4028fde293394447b9631815f6ad1baba01bba3d588d4d7498f58e5e24ce35bc8ebc237efad4171215b5ee79fc4461bec5fbb0be70756a371caaea807421ddfb</sha512>
     <tags>
       <tag>stable</tag>
     </tags>
@@ -33,7 +33,7 @@
     <downloads>
       <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/24.51.07/plg_system_extensiontools.zip</downloadurl>
     </downloads>
-    <sha512>4444a587dc7a858adc326bce9b57822c93a55337b8527266ea2694a2db1bb22f9edb9890bd67dd5378550914cd21f3929a1522391a0b9dc93fc4c0acfac2bc7c</sha512>
+    <sha512>4028fde293394447b9631815f6ad1baba01bba3d588d4d7498f58e5e24ce35bc8ebc237efad4171215b5ee79fc4461bec5fbb0be70756a371caaea807421ddfb</sha512>
     <tags>
       <tag>stable</tag>
     </tags>
