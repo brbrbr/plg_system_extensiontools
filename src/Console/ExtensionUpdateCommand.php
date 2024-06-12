@@ -165,7 +165,7 @@ class ExtensionUpdateCommand extends AbstractCommand
 
     private function updataAll(): bool
     {
-        $updates = $this->getAllowedUpdates();
+        $updates=$this->getAllowedUpdates();
         foreach ($updates as $update) {
             //Let's do it one by one for some nice log
             $this->updateUID($update);

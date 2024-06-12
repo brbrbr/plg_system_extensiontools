@@ -35,7 +35,7 @@ return new class () implements
                 // phpcs:enable PSR12.Classes.AnonClassDeclaration
                 protected AdministratorApplication $app;
                 protected DatabaseDriver $db;
-                private $minimumJoomlaVersion = '5.1';
+                private $minimumJoomlaVersion = '4.4';
                 private $maximumJoomlaVersion = '5.1.999';
                 private $minimumPHPVersion = '8.1';
 

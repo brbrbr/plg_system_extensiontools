@@ -9,7 +9,6 @@
 
 namespace Brambring\Plugin\System\Extensiontools\Extension;
 
-use Blc\Component\Blc\Administrator\Field\InfoField;
 use Brambring\Plugin\System\Extensiontools\Console\ExtensionUpdateCommand;
 use Brambring\Plugin\System\Extensiontools\Table\Transient;
 use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
@@ -97,7 +96,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     {
         if ($this->NonCoreExtensionsWithUpdateSite === null) {
             $db    = $this->getDatabase();
-            $query = $db->createQuery();
+            $query = $db->getQuery(true);
 
             $query->select(
                 [
@@ -228,7 +227,11 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
     private function updateAllExtensions(ExecuteTaskEvent $event): int
     {
+
+
+
         $updates = $this->getAllowedUpdates();
+
         if (\count($updates) > 0) {
 
             $app = $this->getApplication();
@@ -486,7 +489,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $hasRecipient = false;
             foreach ($superUsers as $superUser) {
                 $itemId = 'ExtensionTools.email.' . $superUser->id;
-
                 if ($sendOnce === false || !$transientManager->getHashMatch($itemId, $sha1)) {
                     $hasRecipient = true;
                     $mail->addBcc($superUser->email, $superUser->name);
@@ -497,7 +499,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                     ]);
                     $transientManager->storeTransient($transientData, 'transient');
                     $transientManager->deleteOldVersions(1);
-
                 }
             }
 
@@ -525,6 +526,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
 
         $this->logTask('check Extension Updates end', 'info');
+
 
         return Status::OK;
     }
@@ -622,10 +624,10 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
         // Get the user information for the Super Administrator users
         try {
-            $query = $db->createQuery()
+            $query = $db->getQuery(true)
                 ->select($db->quoteName(['id', 'name', 'email']))
                 ->from($db->quoteName('#__users', 'u'))
-                ->join('INNER', $db->quoteName('#__user_usergroup_map', 'm'), $db->quoteName('u.id') . ' = ' .$db->quoteName('m.user_id'))
+                ->join('INNER', $db->quoteName('#__user_usergroup_map', 'm'), $db->quoteName('u.id') . ' = ' . $db->quoteName('m.user_id'))
                 ->whereIn($db->quoteName('m.group_id'), $groups, ParameterType::INTEGER)
                 ->where($db->quoteName('block') . ' = 0');
 
