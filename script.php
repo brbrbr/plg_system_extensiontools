@@ -14,34 +14,32 @@
 
 use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Log\Log;
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\Installer\InstallerAdapter;
 use Joomla\CMS\Installer\InstallerScriptInterface;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Log\Log;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\DatabaseInterface;
 use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
 
 // phpcs:disable PSR12.Classes.AnonClassDeclaration
-return new class() implements
-    ServiceProviderInterface
-{
+return new class () implements
+    ServiceProviderInterface {
     // phpcs:enable PSR12.Classes.AnonClassDeclaration
     public function register(Container $container)
     {
         $container->set(
             InstallerScriptInterface::class,
             // phpcs:disable PSR12.Classes.AnonClassDeclaration
-            new class($container->get(AdministratorApplication::class)) implements
-                InstallerScriptInterface
-            {
+            new class ($container->get(AdministratorApplication::class)) implements
+                InstallerScriptInterface {
                 // phpcs:enable PSR12.Classes.AnonClassDeclaration
                 protected AdministratorApplication $app;
                 protected DatabaseDriver $db;
                 private $minimumJoomlaVersion = '5.1';
                 private $maximumJoomlaVersion = '5.1.999';
-                private $minimumPHPVersion = '8.1';
+                private $minimumPHPVersion    = '8.1';
 
                 public function __construct(AdministratorApplication $app)
                 {

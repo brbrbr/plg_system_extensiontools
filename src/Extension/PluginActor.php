@@ -9,12 +9,12 @@
 
 namespace Brambring\Plugin\System\Extensiontools\Extension;
 
-use Blc\Component\Blc\Administrator\Field\InfoField;
 use Brambring\Plugin\System\Extensiontools\Console\ExtensionUpdateCommand;
 use Brambring\Plugin\System\Extensiontools\Table\Transient;
 use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Event\ErrorEvent;
 use Joomla\CMS\Extension\ExtensionHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
@@ -30,11 +30,11 @@ use Joomla\Component\Scheduler\Administrator\Task\Status;
 use Joomla\Component\Scheduler\Administrator\Traits\TaskPluginTrait;
 use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Database\ParameterType;
+use Joomla\Event;
 use Joomla\Event\SubscriberInterface;
 use Joomla\Utilities\ArrayHelper;
 use PHPMailer\PHPMailer\Exception as phpMailerException;
-use Joomla\Event;
-use Joomla\CMS\Event\ErrorEvent;
+
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
@@ -78,7 +78,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     public static function getSubscribedEvents(): array
     {
         $events = [
-            'onError'           => ['onError', Event\Priority::MAX],
+            'onError'                                             => ['onError', Event\Priority::MAX],
             \Joomla\Application\ApplicationEvents::BEFORE_EXECUTE => 'registerCommands',
             'onTaskOptionsList'                                   => 'advertiseRoutines',
             'onExecuteTask'                                       => 'standardRoutineHandler',
@@ -122,7 +122,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
             return;
         }
-        $error = $event->getError();
+        $error             = $event->getError();
         $baseSubstitutions = [
             'sitename' => $this->getApplication()->get('sitename'),
 
@@ -139,7 +139,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         }
         $body[] = "\n";
         $body[] = $error->getMessage();
-        $body = implode("\n", $body);
+        $body   = implode("\n", $body);
         try {
             $mail             = clone Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
             $transientManager = new Transient($this->getDatabase(), $this->getDispatcher());
@@ -148,7 +148,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 'body'    => $body,
                 'subject' => $subject,
             ];
-         
+
             $sha1 = $transientManager->getSha1($transientData);
 
             $hasRecipient = false;
@@ -376,10 +376,10 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 $this->logTask('No recipients found', 'warning');
                 return Status::OK;
             }
-            $updateCount = \count($updates);
+            $updateCount       = \count($updates);
             $baseSubstitutions = [
                 'sitename' => $this->getApplication()->get('sitename'),
-                'count' => $updateCount,
+                'count'    => $updateCount,
             ];
 
             $body    = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_HEADER', $updateCount), $baseSubstitutions) . "\n\n"];
@@ -539,10 +539,10 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $this->logTask('No recipients found', 'error');
             return Status::KNOCKOUT;
         }
-        $updateCount = \count($allUpdates);
+        $updateCount       = \count($allUpdates);
         $baseSubstitutions = [
-            'sitename' => $this->getApplication()->get('sitename'),
-            'count' => $updateCount,
+            'sitename'   => $this->getApplication()->get('sitename'),
+            'count'      => $updateCount,
             'updatelink' => $baseURL,
         ];
 
