@@ -26,11 +26,11 @@ use Joomla\Event\DispatcherInterface;
  */
 class Transient extends Table
 {
-    public int  $character_count = 0;
-    public string $version_data    = '';
-    public string $version_note    = '';
+    public int  $character_count    = 0;
+    public string $version_data     = '';
+    public string $version_note     = '';
     public ?string $sha1_hash       = null;
-    public string $save_date       = "2000-01-01 01:01:01";
+    public string $save_date        = "2000-01-01 01:01:01";
 
     /**
      * Constructor

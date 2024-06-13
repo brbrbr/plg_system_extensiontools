@@ -27,10 +27,10 @@ use Joomla\CMS\Extension\ExtensionHelper;
  */
 trait UpdateTrait
 {
-    private ?array $updateList = null;
-    private array $successInfo      = [];
-    private array $failInfo         = [];
-    private array $skipInfo         = [];
+    private ?array $updateList       = null;
+    private array $successInfo       = [];
+    private array $failInfo          = [];
+    private array $skipInfo          = [];
     private ?array $allowedExtension = null;
 
     private function isValidUpdate(string $field, int $value): \stdClass|bool
