@@ -27,7 +27,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-
+use Joomla\Database\DatabaseAwareTrait;
+use Joomla\Database\DatabaseInterface;
+use Joomla\CMS\Language\Text;
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
@@ -40,6 +42,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ExtensionUpdateCommand extends AbstractCommand
 {
     use UpdateTrait;
+    use DatabaseAwareTrait;
     /**
      * The default command name
      *
@@ -65,6 +68,7 @@ class ExtensionUpdateCommand extends AbstractCommand
      * @since 4.0.0
      */
     private $ioStyle;
+    private bool $email = false;
 
     /**
      * Exit Code For installation failure
@@ -95,6 +99,7 @@ class ExtensionUpdateCommand extends AbstractCommand
         $this->cliInput = $input;
         $this->ioStyle  = new SymfonyStyle($input, $output);
         $this->getApplication()->getLanguage()->load('lib_joomla', JPATH_ADMINISTRATOR, null, true, true);
+        $this->setDatabase(Factory::getContainer()->get(DatabaseInterface::class));
     }
 
     /**
@@ -109,7 +114,8 @@ class ExtensionUpdateCommand extends AbstractCommand
         $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'The path to the extension');
         $this->addOption('url', null, InputOption::VALUE_REQUIRED, 'The url to the extension');
         $this->addOption('eid', null, InputOption::VALUE_REQUIRED, 'The extension ID');
-        $this->addOption('all', null, InputOption::VALUE_NONE, 'The extension ID');
+        $this->addOption('all', null, InputOption::VALUE_NONE, 'Update all configured extensions');
+        $this->addOption('email', null, InputOption::VALUE_NONE, 'Email results');
 
 
         $help = "<info>%command.name%</info> is used to install extensions
@@ -118,10 +124,13 @@ class ExtensionUpdateCommand extends AbstractCommand
 		\n  --url: The URL from where the install package should be downloaded
         \n  --eid: The Extension ID of the extension to be updated
         \n  --all: Update all extension with pending update
+        \n
+        \n --email: This will ommit the output and send an email to configured recipeints.(plugin configuration)
 		\nUsage:
 		\n  <info>php %command.full_name% --path=<path_to_file></info>
         \n  <info>php %command.full_name% --eid=<exention id></info>
-		\n  <info>php %command.full_name% --url=<url_to_file></info>";
+		\n  <info>php %command.full_name% --url=<url_to_file></info>
+        ";
 
         $this->setDescription('Install an extension from a URL, a path or using Joomla\'s Update System');
         $this->setHelp($help);
@@ -172,6 +181,90 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         return true;
     }
+    private function updatesToMailRows($updates) {
+        $body=[];
+        foreach ($updates as $updateValue) {
+           
+            // Replace merge codes with their values
+            $extensionSubstitutions = [
+                'newversion'    => $updateValue[5],
+                'curversion'    => $updateValue[4],
+                'extensiontype' => $updateValue[3],
+                'extensionname' => $updateValue[1],
+            ];
+        
+            $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SINGLE'), $extensionSubstitutions) . "\n";
+        }
+        return $body;
+    }
+    
+    private function emailUpdateResults()
+    {
+        $app=$this->getApplication();
+        $this->loadLanguages($this->params->get('language_override', ''));
+        $superUsers = $this->usersToEmail($this->params->get('recipients',  []));
+
+        if (empty($superUsers)) {
+            $this->logTask('No recipients found', 'warning');
+            return true;
+        }
+        $body = [];
+
+        if (\count($this->successInfo)) {
+            $body[] = '==== Successful updates:';
+            $body=array_merge($body,$this->updatesToMailRows($this->successInfo));
+           
+        }
+
+
+        if (\count($this->skipInfo)) {
+            $body[]='';
+            $body[] = '==== Skipped updates (auto update not allowed):';
+            $body=array_merge($body,$this->updatesToMailRows($this->skipInfo));
+        }
+        if (\count($this->failInfo)) {
+            $body[]='';
+            $body[] = '==== Failed :';
+            $body=array_merge($body,$this->updatesToMailRows($this->failInfo));
+        }
+
+        $updateCount       = \count($body);
+        if ($updateCount == 0) {
+            return;
+        }
+
+        $baseSubstitutions = [
+            'sitename' => $this->getApplication()->get('sitename'),
+            'count'    => $updateCount,
+        ];
+
+        array_unshift($body, $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_HEADER', $updateCount), $baseSubstitutions) . "\n\n");
+        $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_SUBJECT', $updateCount), $baseSubstitutions);
+
+        $lists    = [];
+        if (\is_callable([$app, 'getMessageQueue'])) {
+            $messages = $app->getMessageQueue();
+            // Build the sorted messages list
+            if (\is_array($messages) && \count($messages)) {
+                foreach ($messages as $message) {
+                    if (isset($message['type']) && isset($message['message'])) {
+                        $lists[$message['type']][] = $message['message'];
+                    }
+                }
+            }
+        }
+        // If messages exist add them to the output
+        if (\count($lists)) {
+            foreach ($lists as $type => $messages) {
+                $body[] = "\n$type:\n";
+                $body[] = join("\n", $messages);
+            }
+        }
+        $body = join("\n", $body);
+        //updates should only install once. So sendonce could be false.
+       
+        $this->sendMail($superUsers, $subject, $body, 'emailUpdateResults');
+    }
 
     private function showUpdateResutls()
     {
@@ -194,6 +287,7 @@ class ExtensionUpdateCommand extends AbstractCommand
     /*
     * Single update
     */
+
     private function updateUID($update): bool
     {
         $uid = $update->update_id ?? false;
@@ -264,7 +358,6 @@ class ExtensionUpdateCommand extends AbstractCommand
     public function processUrlInstallation($url): bool
     {
         $filename = InstallerHelper::downloadPackage($url);
-
         $tmpPath = $this->getApplication()->get('tmp_path');
 
         $path     = $tmpPath . '/' . basename($filename);
@@ -291,22 +384,34 @@ class ExtensionUpdateCommand extends AbstractCommand
      * @throws \Exception
      * @since   4.0.0
      */
+
+    protected function conditionalTitle($title)
+    {
+        if ($this->email) {
+            return;
+        }
+        $this->ioStyle->title($title);
+    }
     protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
         $this->configureIO($input, $output);
-
+        $this->email = $this->cliInput->getOption('email');
 
         if ($this->cliInput->getOption('all')) {
-            $this->ioStyle->title('Update all Extensions');
+            $this->conditionalTitle('Update all Extensions');
             $this->updataAll();
-            $this->showUpdateResutls();
-            //updateAll has it's own reporting
+            if ($this->email) {
+                $this->emailUpdateResults();
+            } else {
+                $this->showUpdateResutls();
+            }
 
+            //updateAll has it's own reporting
             return self::INSTALLATION_SUCCESSFUL;
         }
 
         if ($path = $this->cliInput->getOption('path')) {
-            $this->ioStyle->title('Update/Install Extension From Path');
+            $this->conditionalTitle('Update/Install Extension From Path');
             $result = $this->processPathInstallation($path);
 
             if (!$result) {
@@ -322,7 +427,7 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
 
         if ($url = $this->cliInput->getOption('url')) {
-            $this->ioStyle->title('Update/Install Extension From URL');
+            $this->conditionalTitle('Update/Install Extension From URL');
             $result = $this->processUrlInstallation($url);
 
             if (!$result) {
@@ -338,7 +443,7 @@ class ExtensionUpdateCommand extends AbstractCommand
 
 
         if ($eid = (int)$this->cliInput->getOption('eid')) {
-            $this->ioStyle->title('Update Extension Using Extension ID');
+            $this->conditionalTitle('Update Extension Using Extension ID');
             $result = $this->processEIDInstallation($eid);
             $this->showUpdateResutls();
             if (!$result) {

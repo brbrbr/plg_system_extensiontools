@@ -30,26 +30,23 @@
         <field name="allowedAll" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_DESC"/>
         <field name="allowedMinor" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_MINOR" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_MINOR_DESC"/>
         <field name="allowedPatch" type="extensions" multiple="true" required="false" default="" label="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_PATCH" description="PLG_SYSTEM_EXTENSIONTOOLS_ALLOWAUTOUPDATE_PATCH_DESC"/>
-      
-        <field name="emailonerror" type="radio" label="PLG_SYSTEM_EXTENSIONTOOLS_EMAILONERROR_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_EMAILONERROR_DESC" default="0" layout="joomla.form.field.radio.switcher" filter="integer">
-            <option value="0">JNo</option>
-            <option value="1">JYes</option>
-          </field>
-        <field name="recipients" showon="emailonerror!:0" type="subform" label="PLG_SYSTEM_EXTENSIONTOOLS_ERROREMAILS_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_ERROREMAIL_DESC" multiple="true">
-        
+        <field name="recipients" type="subform" label="PLG_SYSTEM_EXTENSIONTOOLS_ERROREMAILS_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_ERROREMAIL_DESC" multiple="true">
           <form>
-
             <fieldset addfieldprefix="Brambring\Plugin\System\Extensiontools\Field">
               <field name="user" type="user" label="PLG_SYSTEM_EXTENSIONTOOLS_EMAIL_LBL" default="" />
             </fieldset>
           </form>
-
         </field>
+         
 
-
-	<field name="language_override" showon="emailonerror!:0" type="language" label="PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_DESC" default="" client="administrator">
+	<field name="language_override"  type="language" label="PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_DESC" default="" client="administrator">
 				<option value="">PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_NONE</option>
-			</field>        <!-- a dummy is required otherwise you can't clear the allowedExtensions list-->
+			</field>      
+       <field name="emailonerror" type="radio" label="PLG_SYSTEM_EXTENSIONTOOLS_EMAILONERROR_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_EMAILONERROR_DESC" default="0" layout="joomla.form.field.radio.switcher" filter="integer">
+            <option value="0">JNo</option>
+            <option value="1">JYes</option>
+          </field>
+        <!-- a dummy is required otherwise you can't clear the allowedExtensions list-->
 
         <field name="d" type="hidden" value="dummy" multiple="true" required="false"/>
       </fieldset>

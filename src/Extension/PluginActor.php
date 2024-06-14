@@ -10,20 +10,18 @@
 namespace Brambring\Plugin\System\Extensiontools\Extension;
 
 use Brambring\Plugin\System\Extensiontools\Console\ExtensionUpdateCommand;
-use Brambring\Plugin\System\Extensiontools\Table\Transient;
+
 use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
-use Joomla\CMS\Access\Access;
+
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Event\ErrorEvent;
 use Joomla\CMS\Extension\ExtensionHelper;
-use Joomla\CMS\Factory;
+
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Mail\Exception\MailDisabledException;
-use Joomla\CMS\Mail\MailerFactoryInterface;
-use Joomla\CMS\Mail\MailHelper;
+
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Router\Route;
-use Joomla\CMS\Table\Asset;
+
 use Joomla\CMS\Updater\Updater;
 use Joomla\Component\Scheduler\Administrator\Event\ExecuteTaskEvent;
 use Joomla\Component\Scheduler\Administrator\Task\Status;
@@ -33,7 +31,7 @@ use Joomla\Database\ParameterType;
 use Joomla\Event;
 use Joomla\Event\SubscriberInterface;
 use Joomla\Utilities\ArrayHelper;
-use PHPMailer\PHPMailer\Exception as phpMailerException;
+
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -91,13 +89,10 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     public function onError(ErrorEvent $event)
     {
 
-
-
         //params is not aviaible in subscribe events
         if (!(bool)$this->params->get('emailonerror', false)) {
             return;
         }
-
 
         $recipients = ArrayHelper::fromObject($this->params->get('recipients', []), false);
 
@@ -140,51 +135,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $body[] = "\n";
         $body[] = $error->getMessage();
         $body   = implode("\n", $body);
-        try {
-            $mail             = clone Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
-            $transientManager = new Transient($this->getDatabase(), $this->getDispatcher());
 
-            $transientData = [
-                'body'    => $body,
-                'subject' => $subject,
-            ];
 
-            $sha1 = $transientManager->getSha1($transientData);
-
-            $hasRecipient = false;
-            foreach ($superUsers as $superUser) {
-                $itemId = 'ExtensionTools.error.' . $superUser->id;
-
-                if (!$transientManager->getHashMatch($itemId, $sha1)) {
-                    $hasRecipient = true;
-                    $mail->addBcc($superUser->email, $superUser->name);
-                    $transientManager->bind([
-                        'sha1_hash'      => $sha1,
-                        'item_id'        => $itemId,
-                        'editor_user_id' => $superUser->id,
-                    ]);
-                    $transientManager->storeTransient($transientData, 'transient');
-                    $transientManager->deleteOldVersions(1);
-                }
-            }
-
-            if ($hasRecipient) {
-                $mailfrom =    $app->get('mailfrom');
-                $fromname =   $app->get('fromname');
-
-                if (MailHelper::isEmailAddress($mailfrom)) {
-                    $mail->setSender(MailHelper::cleanLine($mailfrom), MailHelper::cleanLine($fromname), false);
-                }
-                $mail->setBody($body);
-                $mail->setSubject($subject);
-                $mail->SMTPDebug   = false;
-                $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]];
-                $mail->isHtml(false);
-                $mail->send();
-            }
-        } catch (MailDisabledException | phpMailerException $exception) {
-            return;
-        }
+        return   $this->sendMail($superUsers, $subject, $body, 'onError');
     }
 
     public function registerCommands($event): void
@@ -326,80 +279,68 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     }
 
 
+
     private function updateAllExtensions(ExecuteTaskEvent $event): int
     {
         $updates = $this->getAllowedUpdates();
-        if (\count($updates) > 0) {
+        if (\count($updates) == 0) {
+            return Status::OK;
+        }
+        $app = $this->getApplication();
+        //  $app->getInput()->set('ignoreMessages',false);
+        $mvcFactory        = $app->bootComponent('com_installer')->getMVCFactory();
+        $model             = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
+        $minimum_stability = ComponentHelper::getComponent('com_installer')->getParams()->get('minimum_stability', Updater::STABILITY_STABLE);
+        $model->update(array_keys($updates), $minimum_stability);
 
-            $app = $this->getApplication();
-            //  $app->getInput()->set('ignoreMessages',false);
-            $mvcFactory        = $app->bootComponent('com_installer')->getMVCFactory();
-            $model             = $mvcFactory->createModel('update', 'administrator', ['ignore_request' => true]);
-            $minimum_stability = ComponentHelper::getComponent('com_installer')->getParams()->get('minimum_stability', Updater::STABILITY_STABLE);
-            $model->update(array_keys($updates), $minimum_stability);
+        // Load the parameters.
+        $params     = $event->getArgument('params');
 
-
-            // Load the parameters.
-            $params     = $event->getArgument('params');
-            $recipients = ArrayHelper::fromObject($params->recipients ?? [], false);
-
-            $specificIds = array_map(function ($item) {
-                return $item->user;
-            }, $recipients);
-
-            /*
+        /*
            * Load the appropriate language. We try to load English (UK), the current user's language and the forced
            * language preference, in this order. This ensures that we'll never end up with untranslated strings in the
            * update email which would make Joomla! seem bad. So, please, if you don't fully understand what the
            * following code does DO NOT TOUCH IT. It makes the difference between a hobbyist CMS and a professional
            * solution!
            */
-            $this->loadLanguages($params->language_override ?? '');
+        $this->loadLanguages($params->language_override ?? '');
 
-            $superUsers = [];
+        $superUsers = $this->usersToEmail($params->recipients ?? []);
 
-            if (!empty($specificIds)) {
-                $superUsers = $this->getSuperUsers($specificIds);
-            }
-
-            if (empty($superUsers)) {
-                $superUsers = $this->getSuperUsers();
-            }
+        if (empty($superUsers)) {
+            $this->logTask('No recipients found', 'warning');
+            return Status::OK;
+        }
 
 
-            if (\is_callable([$app, 'getMessageQueue'])) {
-                $messages = $app->getMessageQueue();
-            }
 
 
-            if (empty($superUsers)) {
-                $this->logTask('No recipients found', 'warning');
-                return Status::OK;
-            }
-            $updateCount       = \count($updates);
-            $baseSubstitutions = [
-                'sitename' => $this->getApplication()->get('sitename'),
-                'count'    => $updateCount,
+
+        $updateCount       = \count($updates);
+        $baseSubstitutions = [
+            'sitename' => $this->getApplication()->get('sitename'),
+            'count'    => $updateCount,
+        ];
+
+        $body    = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_HEADER', $updateCount), $baseSubstitutions) . "\n\n"];
+        $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SUBJECT', $updateCount), $baseSubstitutions);
+
+        foreach ($updates as $updateValue) {
+            // Replace merge codes with their values
+            $extensionSubstitutions = [
+                'newversion'    => $updateValue->version,
+                'curversion'    => $updateValue->current_version,
+                'extensiontype' => $updateValue->type,
+                'extensionname' => $updateValue->name,
             ];
 
-            $body    = [$this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_HEADER', $updateCount), $baseSubstitutions) . "\n\n"];
-            $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SUBJECT', $updateCount), $baseSubstitutions);
+            $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SINGLE'), $extensionSubstitutions) . "\n";
+        }
 
-            foreach ($updates as $updateValue) {
-                // Replace merge codes with their values
-                $extensionSubstitutions = [
-                    'newversion'    => $updateValue->version,
-                    'curversion'    => $updateValue->current_version,
-                    'extensiontype' => $updateValue->type,
-                    'extensionname' => $updateValue->name,
-                ];
 
-                $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SINGLE'), $extensionSubstitutions) . "\n";
-            }
-
+        $lists    = [];
+        if (\is_callable([$app, 'getMessageQueue'])) {
             $messages = $app->getMessageQueue();
-            $lists    = [];
-
             // Build the sorted messages list
             if (\is_array($messages) && \count($messages)) {
                 foreach ($messages as $message) {
@@ -408,61 +349,21 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                     }
                 }
             }
-
-            // If messages exist add them to the output
-            if (\count($lists)) {
-                foreach ($lists as $type => $messages) {
-                    $body[] = "\n$type:\n";
-                    $body[] = join("\n", $messages);
-                }
-            }
-            $body = join("\n", $body);
-            // Send the emails to the Super Users
-            try {
-                $mail = clone Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
-                foreach ($superUsers as $superUser) {
-                    $mail->addBcc($superUser->email, $superUser->name);
-                }
-                $mailfrom =   $this->getApplication()->get('mailfrom');
-                $fromname = $this->getApplication()->get('fromname');
-
-                if (MailHelper::isEmailAddress($mailfrom)) {
-                    $mail->setSender(MailHelper::cleanLine($mailfrom), MailHelper::cleanLine($fromname), false);
-                }
-                $mail->setBody($body);
-                $mail->setSubject($subject);
-                $mail->SMTPDebug   = false;
-                $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]];
-                $mail->isHtml(false);
-                $mail->send();
-            } catch (MailDisabledException | phpMailerException $exception) {
-                try {
-                    $this->logTask($exception->getMessage(), 'error');
-                } catch (\RuntimeException $exception) {
-                    return Status::KNOCKOUT;
-                }
+        }
+        // If messages exist add them to the output
+        if (\count($lists)) {
+            foreach ($lists as $type => $messages) {
+                $body[] = "\n$type:\n";
+                $body[] = join("\n", $messages);
             }
         }
-        return Status::OK;
+        $body = join("\n", $body);
+        //updates should only install once. So sendonce could be false.
+        return   $this->sendMail($superUsers, $subject, $body, 'updateAllExtensions');
     }
 
-    private function loadLanguages($forcedLanguage)
-    {
-        $jLanguage = $this->getApplication()->getLanguage();
-        $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, 'en-GB', true, true);
-        $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, null, true, true);
-        $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, 'en-GB', true, true);
-        $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, null, true, true);
-        $jLanguage->load('plg_system_extensiontools', JPATH_ADMINISTRATOR, 'en-GB', true, true);
-        $jLanguage->load('plg_system_extensiontools', JPATH_ADMINISTRATOR, null, true, false);
 
-        // Then try loading the preferred (forced) language
-        if (!empty($forcedLanguage)) {
-            $jLanguage->load('lib_joomla', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
-            $jLanguage->load('com_installer', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
-            $jLanguage->load('plg_system_extensiontools', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
-        }
-    }
+
     /**
      * Method to send the update notification.
      *
@@ -478,11 +379,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $this->logTask('check Extension Updates start', 'info');
         // Load the parameters.
         $params      = $event->getArgument('params');
-        $recipients  = ArrayHelper::fromObject($params->recipients ?? [], false);
+
         $sendOnce    = (bool)($params->send_once ?? true);
-        $specificIds = array_map(function ($item) {
-            return $item->user;
-        }, $recipients);
+
 
         /*
          * Load the appropriate language. We try to load English (UK), the current user's language and the forced
@@ -491,9 +390,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
          * following code does DO NOT TOUCH IT. It makes the difference between a hobbyist CMS and a professional
          * solution!
          */
-
-
-
 
 
         $extensionUpdates = $this->getExtensionsWithUpdate();
@@ -525,15 +421,8 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         // $this->getApplication()->triggerEvent('onBuildAdministratorLoginURL', [&$uri]);
 
         // Let's find out the email addresses to notify
-        $superUsers = [];
+        $superUsers = $this->usersToEmail($params->recipients ?? []);
 
-        if (!empty($specificIds)) {
-            $superUsers = $this->getSuperUsers($specificIds);
-        }
-
-        if (empty($superUsers)) {
-            $superUsers = $this->getSuperUsers();
-        }
 
         if (empty($superUsers)) {
             $this->logTask('No recipients found', 'error');
@@ -568,174 +457,15 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $body = join("\n", $body);
 
         // Send the emails to the Super Users
-
-        try {
-            $mail             = clone Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
-            $transientManager = new Transient($this->getDatabase(), $this->getDispatcher());
-
-            $transientData = [
-                'body'    => $body,
-                'subject' => $subject,
-            ];
-            $sha1 = $transientManager->getSha1($transientData);
-
-            $hasRecipient = false;
-            foreach ($superUsers as $superUser) {
-                $itemId = 'ExtensionTools.update.' . $superUser->id;
-
-                if ($sendOnce === false || !$transientManager->getHashMatch($itemId, $sha1)) {
-                    $hasRecipient = true;
-                    $mail->addBcc($superUser->email, $superUser->name);
-                    $transientManager->bind([
-                        'sha1_hash'      => $sha1,
-                        'item_id'        => $itemId,
-                        'editor_user_id' => $superUser->id,
-                    ]);
-                    $transientManager->storeTransient($transientData, 'transient');
-                    $transientManager->deleteOldVersions(1);
-                }
-            }
-
-            if ($hasRecipient) {
-                $mailfrom =   $this->getApplication()->get('mailfrom');
-                $fromname = $this->getApplication()->get('fromname');
-
-                if (MailHelper::isEmailAddress($mailfrom)) {
-                    $mail->setSender(MailHelper::cleanLine($mailfrom), MailHelper::cleanLine($fromname), false);
-                }
-                $mail->setBody($body);
-                $mail->setSubject($subject);
-                $mail->SMTPDebug   = false;
-                $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]];
-                $mail->isHtml(false);
-                $mail->send();
-            }
-        } catch (MailDisabledException | phpMailerException $exception) {
-            try {
-                $this->logTask($exception->getMessage(), 'error');
-            } catch (\RuntimeException $exception) {
-                return Status::KNOCKOUT;
-            }
-        }
-
+        $status = $this->sendMail($superUsers, $subject, $body, $sendOnce ? 'checkExtensionUpdates' : false);
 
         $this->logTask('check Extension Updates end', 'info');
 
-        return Status::OK;
-    }
-
-    /**
-     * Method to replace tags like in MailTemplate
-     *
-     * @param   string  $text  The 'language string'.
-     * @param   array  $tags  key replacment pairs
-     *
-     * @return string  The text with replaces tags
-     *
-     * @since  1.0.1
-     */
-
-    protected function replaceTags(string $text, array $tags)
-    {
-        foreach ($tags as $key => $value) {
-            // If the value is NULL, replace with an empty string. NULL itself throws notices
-            if (\is_null($value)) {
-                $value = '';
-            }
-
-            if (\is_array($value)) {
-                $matches = [];
-                $pregKey = preg_quote(strtoupper($key), '/');
-
-                if (preg_match_all('/{' . $pregKey . '}(.*?){\/' . $pregKey . '}/s', $text, $matches)) {
-                    foreach ($matches[0] as $i => $match) {
-                        $replacement = '';
-
-                        foreach ($value as $name => $subvalue) {
-                            if (\is_array($subvalue) && $name == $matches[1][$i]) {
-                                $replacement .= implode("\n", $subvalue);
-                            } elseif (\is_array($subvalue)) {
-                                $replacement .= $this->replaceTags($matches[1][$i], $subvalue);
-                            } elseif (\is_string($subvalue) && $name == $matches[1][$i]) {
-                                $replacement .= $subvalue;
-                            }
-                        }
-
-                        $text = str_replace($match, $replacement, $text);
-                    }
-                }
-            } else {
-                $text = str_replace('{' . strtoupper($key) . '}', $value, $text);
-            }
-        }
-
-        return $text;
+        return $status;
     }
 
 
-    /**
-     * Returns the Super Users email information. If you provide a comma separated $email list
-     * we will check that these emails do belong to Super Users
-     * this version overrides the sendemail parameter in the user settings
-     *
-     * @param   null|array  $userIds  A list of Super Users to email
-     *
-     * @return  array  The list of Super User emails
-     *
-     * @since   1.0.1
-     */
-    private function getSuperUsers(?array $userIds = null)
-    {
-        $db     = $this->getDatabase();
-
-        // Get a list of groups which have Super User privileges
-        $ret = [];
-
-        try {
-            $rootId    = (new Asset($db))->getRootId();
-            $rules     = Access::getAssetRules($rootId)->getData();
-            $rawGroups = $rules['core.admin']->getData();
-            $groups    = [];
-
-            if (empty($rawGroups)) {
-                return $ret;
-            }
-
-            foreach ($rawGroups as $g => $enabled) {
-                if ($enabled) {
-                    $groups[] = $g;
-                }
-            }
-
-            if (empty($groups)) {
-                return $ret;
-            }
-        } catch (\Exception $exc) {
-            return $ret;
-        }
 
 
-        // Get the user information for the Super Administrator users
-        try {
-            $query = $db->createQuery()
-                ->select($db->quoteName(['id', 'name', 'email']))
-                ->from($db->quoteName('#__users', 'u'))
-                ->join('INNER', $db->quoteName('#__user_usergroup_map', 'm'), $db->quoteName('u.id') . ' = ' . $db->quoteName('m.user_id'))
-                ->whereIn($db->quoteName('m.group_id'), $groups, ParameterType::INTEGER)
-                ->where($db->quoteName('block') . ' = 0');
-
-            if (!empty($userIds)) {
-                $query->whereIn($db->quoteName('id'), $userIds, ParameterType::INTEGER);
-            } else {
-                $query->where($db->quoteName('sendEmail') . ' = 1');
-            }
-
-            $db->setQuery($query);
-            $ret = $db->loadObjectList();
-        } catch (\Exception $exc) {
-            return $ret;
-        }
-
-        return $ret;
-    }
+  
 }
