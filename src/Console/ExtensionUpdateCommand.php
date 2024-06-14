@@ -125,7 +125,7 @@ class ExtensionUpdateCommand extends AbstractCommand
         \n  --eid: The Extension ID of the extension to be updated
         \n  --all: Update all extension with pending update
         \n
-        \n --email: This will ommit the output and send an email to configured recipeints.(plugin configuration)
+        \n --email: This will ommit the output and send an email to configured recipeints (plugin configuration). This will also email extentions that are not updated. So it works as an update notification as well.
 		\nUsage:
 		\n  <info>php %command.full_name% --path=<path_to_file></info>
         \n  <info>php %command.full_name% --eid=<exention id></info>
