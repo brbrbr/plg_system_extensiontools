@@ -7,7 +7,7 @@
   <license>GNU General Public License version 3 or later</license>
   <authorEmail>bram@brambring.nl</authorEmail>
   <authorUrl>https://brambring.nl</authorUrl>
-  <version>5.1.4</version>
+  <version>5.1.5</version>
   <description>PLG_SYSTEM_EXTENSIONTOOLS_XML_DESCRIPTION</description>
   <namespace path="src">Brambring\Plugin\System\Extensiontools</namespace>
   <scriptfile>script.php</scriptfile>
