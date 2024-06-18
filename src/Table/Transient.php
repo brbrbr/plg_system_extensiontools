@@ -26,7 +26,7 @@ use Joomla\Event\DispatcherInterface;
  */
 class Transient extends Table
 {
-    public int  $character_count    = 0;
+    public int $character_count    = 0;
     public string $version_data     = '';
     public string $version_note     = '';
     public ?string $sha1_hash       = null;

@@ -226,6 +226,4 @@ class UpdateModel extends JoomlaUpdateModel
 
         return $result;
     }
-
-
 }
