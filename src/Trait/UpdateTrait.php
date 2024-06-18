@@ -14,19 +14,18 @@
 
 namespace Brambring\Plugin\System\Extensiontools\Trait;
 
-use Joomla\CMS\Extension\ExtensionHelper;
 use Brambring\Plugin\System\Extensiontools\Table\Transient;
+use Joomla\CMS\Access\Access;
+use Joomla\CMS\Extension\ExtensionHelper;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Mail\Exception\MailDisabledException;
 use Joomla\CMS\Mail\MailerFactoryInterface;
 use Joomla\CMS\Mail\MailHelper;
+use Joomla\CMS\Table\Asset;
+use Joomla\Component\Scheduler\Administrator\Task\Status;
+use Joomla\Database\ParameterType;
 use Joomla\Utilities\ArrayHelper;
 use PHPMailer\PHPMailer\Exception as phpMailerException;
-use Joomla\Component\Scheduler\Administrator\Task\Status;
-use Joomla\CMS\Table\Asset;
-use Joomla\CMS\Access\Access;
-use Joomla\Database\ParameterType;
-use Joomla\CMS\Factory;
-
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -207,12 +206,12 @@ trait UpdateTrait
         }
     }
 
-    private function sendMail($superUsers, $subject, $body, string | bool $sendOnce = false) : int
+    private function sendMail($superUsers, $subject, $body, string | bool $sendOnce = false): int
     {
         try {
             $mail             = clone Factory::getContainer()->get(MailerFactoryInterface::class)->createMailer();
             $transientManager = new Transient($this->getDatabase());
-            $transientData = [
+            $transientData    = [
                 'body'    => $body,
                 'subject' => $subject,
             ];
@@ -220,11 +219,11 @@ trait UpdateTrait
 
             $hasRecipient = false;
             foreach ($superUsers as $superUser) {
-                $itemId = 'ExtensionTools.' .($sendOnce?:'sendonce'). '-' . $superUser->id;
+                $itemId = 'ExtensionTools.' . ($sendOnce ?: 'sendonce') . '-' . $superUser->id;
                 if ($sendOnce === false || !$transientManager->getHashMatch($itemId, $sha1)) {
                     $hasRecipient = true;
                     $mail->addBcc($superUser->email, $superUser->name);
-                  
+
                     if ($sendOnce !== false) {
                         $transientManager->bind([
                             'sha1_hash'      => $sha1,
@@ -282,7 +281,7 @@ trait UpdateTrait
         }
         return $superUsers;
     }
-      /**
+    /**
      * Returns the Super Users email information. If you provide a comma separated $email list
      * we will check that these emails do belong to Super Users
      * this version overrides the sendemail parameter in the user settings
@@ -348,7 +347,7 @@ trait UpdateTrait
         return $ret;
     }
 
-        /**
+    /**
      * Method to replace tags like in MailTemplate
      *
      * @param   string  $text  The 'language string'.
@@ -359,40 +358,40 @@ trait UpdateTrait
      * @since  1.0.1
      */
 
-     protected function replaceTags(string $text, array $tags)
-     {
-         foreach ($tags as $key => $value) {
-             // If the value is NULL, replace with an empty string. NULL itself throws notices
-             if (\is_null($value)) {
-                 $value = '';
-             }
- 
-             if (\is_array($value)) {
-                 $matches = [];
-                 $pregKey = preg_quote(strtoupper($key), '/');
- 
-                 if (preg_match_all('/{' . $pregKey . '}(.*?){\/' . $pregKey . '}/s', $text, $matches)) {
-                     foreach ($matches[0] as $i => $match) {
-                         $replacement = '';
- 
-                         foreach ($value as $name => $subvalue) {
-                             if (\is_array($subvalue) && $name == $matches[1][$i]) {
-                                 $replacement .= implode("\n", $subvalue);
-                             } elseif (\is_array($subvalue)) {
-                                 $replacement .= $this->replaceTags($matches[1][$i], $subvalue);
-                             } elseif (\is_string($subvalue) && $name == $matches[1][$i]) {
-                                 $replacement .= $subvalue;
-                             }
-                         }
- 
-                         $text = str_replace($match, $replacement, $text);
-                     }
-                 }
-             } else {
-                 $text = str_replace('{' . strtoupper($key) . '}', $value, $text);
-             }
-         }
- 
-         return $text;
-     }
+    protected function replaceTags(string $text, array $tags)
+    {
+        foreach ($tags as $key => $value) {
+            // If the value is NULL, replace with an empty string. NULL itself throws notices
+            if (\is_null($value)) {
+                $value = '';
+            }
+
+            if (\is_array($value)) {
+                $matches = [];
+                $pregKey = preg_quote(strtoupper($key), '/');
+
+                if (preg_match_all('/{' . $pregKey . '}(.*?){\/' . $pregKey . '}/s', $text, $matches)) {
+                    foreach ($matches[0] as $i => $match) {
+                        $replacement = '';
+
+                        foreach ($value as $name => $subvalue) {
+                            if (\is_array($subvalue) && $name == $matches[1][$i]) {
+                                $replacement .= implode("\n", $subvalue);
+                            } elseif (\is_array($subvalue)) {
+                                $replacement .= $this->replaceTags($matches[1][$i], $subvalue);
+                            } elseif (\is_string($subvalue) && $name == $matches[1][$i]) {
+                                $replacement .= $subvalue;
+                            }
+                        }
+
+                        $text = str_replace($match, $replacement, $text);
+                    }
+                }
+            } else {
+                $text = str_replace('{' . strtoupper($key) . '}', $value, $text);
+            }
+        }
+
+        return $text;
+    }
 }

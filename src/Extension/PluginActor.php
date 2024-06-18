@@ -10,18 +10,14 @@
 namespace Brambring\Plugin\System\Extensiontools\Extension;
 
 use Brambring\Plugin\System\Extensiontools\Console\ExtensionUpdateCommand;
-
 use Brambring\Plugin\System\Extensiontools\Trait\UpdateTrait;
-
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Event\ErrorEvent;
 use Joomla\CMS\Extension\ExtensionHelper;
-
 use Joomla\CMS\Language\Text;
-
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Router\Exception\RouteNotFoundException;
 use Joomla\CMS\Router\Route;
-
 use Joomla\CMS\Updater\Updater;
 use Joomla\Component\Scheduler\Administrator\Event\ExecuteTaskEvent;
 use Joomla\Component\Scheduler\Administrator\Task\Status;
@@ -29,9 +25,8 @@ use Joomla\Component\Scheduler\Administrator\Traits\TaskPluginTrait;
 use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Event;
 use Joomla\Event\SubscriberInterface;
-use Joomla\Utilities\ArrayHelper;
-use Joomla\CMS\Router\Exception\RouteNotFoundException;
 use Joomla\Filesystem\Path;
+use Joomla\Utilities\ArrayHelper;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -98,7 +93,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         if ($error instanceof RouteNotFoundException) {
             return;
         }
-        
+
         $app       = $event->getApplication();
         if ($app->isClient('administrator') || ((int) $error->getCode() !== 404)) {
             return;
@@ -124,7 +119,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $app = $this->getApplication();
 
         if (empty($superUsers)) {
-
             return;
         }
         $error             = $event->getError();
@@ -145,7 +139,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $body[] = "\n";
 
 
-        $body[] = $error?->getMessage()??'';
+        $body[] = $error?->getMessage() ?? '';
         $body[] =   Path::removeRoot($error?->getTraceAsString() ?? '');
         $body   = implode("\n", $body);
 
@@ -469,9 +463,4 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
         return $status;
     }
-
-
-
-
-  
 }

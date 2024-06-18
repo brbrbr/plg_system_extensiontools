@@ -20,16 +20,17 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Installer\Installer;
 use Joomla\CMS\Installer\InstallerHelper;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Updater\Updater;
 use Joomla\Console\Command\AbstractCommand;
+use Joomla\Database\DatabaseAwareTrait;
+use Joomla\Database\DatabaseInterface;
 use Joomla\Registry\Registry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Joomla\Database\DatabaseAwareTrait;
-use Joomla\Database\DatabaseInterface;
-use Joomla\CMS\Language\Text;
+
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
@@ -43,6 +44,7 @@ class ExtensionUpdateCommand extends AbstractCommand
 {
     use UpdateTrait;
     use DatabaseAwareTrait;
+
     /**
      * The default command name
      *
@@ -181,10 +183,10 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         return true;
     }
-    private function updatesToMailRows($updates) {
-        $body=[];
+    private function updatesToMailRows($updates)
+    {
+        $body = [];
         foreach ($updates as $updateValue) {
-           
             // Replace merge codes with their values
             $extensionSubstitutions = [
                 'newversion'    => $updateValue[5],
@@ -192,17 +194,17 @@ class ExtensionUpdateCommand extends AbstractCommand
                 'extensiontype' => $updateValue[3],
                 'extensionname' => $updateValue[1],
             ];
-        
+
             $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SINGLE'), $extensionSubstitutions) . "\n";
         }
         return $body;
     }
-    
+
     private function emailUpdateResults()
     {
-        $app=$this->getApplication();
+        $app = $this->getApplication();
         $this->loadLanguages($this->params->get('language_override', ''));
-        $superUsers = $this->usersToEmail($this->params->get('recipients',  []));
+        $superUsers = $this->usersToEmail($this->params->get('recipients', []));
 
         if (empty($superUsers)) {
             $this->logTask('No recipients found', 'warning');
@@ -212,20 +214,19 @@ class ExtensionUpdateCommand extends AbstractCommand
 
         if (\count($this->successInfo)) {
             $body[] = '==== Successful updates:';
-            $body=array_merge($body,$this->updatesToMailRows($this->successInfo));
-           
+            $body   = array_merge($body, $this->updatesToMailRows($this->successInfo));
         }
 
 
         if (\count($this->skipInfo)) {
-            $body[]='';
+            $body[] = '';
             $body[] = '==== Skipped updates (auto update not allowed):';
-            $body=array_merge($body,$this->updatesToMailRows($this->skipInfo));
+            $body   = array_merge($body, $this->updatesToMailRows($this->skipInfo));
         }
         if (\count($this->failInfo)) {
-            $body[]='';
+            $body[] = '';
             $body[] = '==== Failed :';
-            $body=array_merge($body,$this->updatesToMailRows($this->failInfo));
+            $body   = array_merge($body, $this->updatesToMailRows($this->failInfo));
         }
 
         $updateCount       = \count($body);
@@ -262,7 +263,7 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         $body = join("\n", $body);
         //updates should only install once. So sendonce could be false.
-       
+
         $this->sendMail($superUsers, $subject, $body, 'emailUpdateResults');
     }
 
@@ -358,7 +359,7 @@ class ExtensionUpdateCommand extends AbstractCommand
     public function processUrlInstallation($url): bool
     {
         $filename = InstallerHelper::downloadPackage($url);
-        $tmpPath = $this->getApplication()->get('tmp_path');
+        $tmpPath  = $this->getApplication()->get('tmp_path');
 
         $path     = $tmpPath . '/' . basename($filename);
         $package  = InstallerHelper::unpack($path, true);
