@@ -27,11 +27,11 @@ use Joomla\Component\Scheduler\Administrator\Event\ExecuteTaskEvent;
 use Joomla\Component\Scheduler\Administrator\Task\Status;
 use Joomla\Component\Scheduler\Administrator\Traits\TaskPluginTrait;
 use Joomla\Database\DatabaseAwareTrait;
-use Joomla\Database\ParameterType;
 use Joomla\Event;
 use Joomla\Event\SubscriberInterface;
 use Joomla\Utilities\ArrayHelper;
-
+use Joomla\CMS\Router\Exception\RouteNotFoundException;
+use Joomla\Filesystem\Path;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -94,6 +94,16 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             return;
         }
 
+        $error = $event->getError();
+        if ($error instanceof RouteNotFoundException) {
+            return;
+        }
+        
+        $app       = $event->getApplication();
+        if ($app->isClient('administrator') || ((int) $error->getCode() !== 404)) {
+            return;
+        }
+
         $recipients = ArrayHelper::fromObject($this->params->get('recipients', []), false);
 
         $specificIds = array_map(function ($item) {
@@ -133,7 +143,10 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             }
         }
         $body[] = "\n";
-        $body[] = $error->getMessage();
+
+
+        $body[] = $error?->getMessage()??'';
+        $body[] =   Path::removeRoot($error?->getTraceAsString() ?? '');
         $body   = implode("\n", $body);
 
 
@@ -278,8 +291,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         return $model->getItems();
     }
 
-
-
     private function updateAllExtensions(ExecuteTaskEvent $event): int
     {
         $updates = $this->getAllowedUpdates();
@@ -312,10 +323,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             return Status::OK;
         }
 
-
-
-
-
         $updateCount       = \count($updates);
         $baseSubstitutions = [
             'sitename' => $this->getApplication()->get('sitename'),
@@ -336,7 +343,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
             $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SINGLE'), $extensionSubstitutions) . "\n";
         }
-
 
         $lists    = [];
         if (\is_callable([$app, 'getMessageQueue'])) {

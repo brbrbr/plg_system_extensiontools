@@ -33,7 +33,7 @@ use Joomla\CMS\Factory;
 // phpcs:enable PSR1.Files.SideEffects
 
 /**
- * Console command for installing extensions
+ * Bit of abuse of traits
  *
  * @since  4.0.0
  */
