@@ -449,7 +449,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 'extensionname' => $updateValue->name,
             ];
 
-            $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_SINGLE'), $extensionSubstitutions) . "\n";
+            $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_FOUND_SINGLE'), $extensionSubstitutions) . "\n";
         }
 
         $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_FOOTER'), $baseSubstitutions);
