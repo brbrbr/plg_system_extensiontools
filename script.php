@@ -12,7 +12,6 @@
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
-use Joomla\CMS\Application\AdministratorApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Installer\InstallerAdapter;
 use Joomla\CMS\Installer\InstallerScriptInterface;
@@ -32,18 +31,17 @@ return new class () implements
         $container->set(
             InstallerScriptInterface::class,
             // phpcs:disable PSR12.Classes.AnonClassDeclaration
-            new class ($container->get(AdministratorApplication::class)) implements
+            new class () implements
                 InstallerScriptInterface {
                 // phpcs:enable PSR12.Classes.AnonClassDeclaration
-                protected AdministratorApplication $app;
-                protected DatabaseDriver $db;
+
+                private DatabaseDriver $db;
                 private $minimumJoomlaVersion = '5.1';
                 private $maximumJoomlaVersion = '5.1.999';
                 private $minimumPHPVersion    = '8.1';
 
-                public function __construct(AdministratorApplication $app)
+                public function __construct()
                 {
-                    $this->app = $app;
                     $this->db  = Factory::getContainer()->get(DatabaseInterface::class);
                 }
 
