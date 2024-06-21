@@ -15,3 +15,5 @@ jobs:
           keep-count: 1
           keep-old-minor-releases: true
           keep-old-minor-releases-by: 'minor'
+          remove-tags: true
+          dry-run: true
