@@ -17,7 +17,6 @@ use Joomla\CMS\Installer\InstallerAdapter;
 use Joomla\CMS\Installer\InstallerScriptInterface;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
-use Joomla\Database\DatabaseDriver;
 use Joomla\Database\DatabaseInterface;
 use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
@@ -35,7 +34,7 @@ return new class () implements
                 InstallerScriptInterface {
                 // phpcs:enable PSR12.Classes.AnonClassDeclaration
 
-                private DatabaseDriver $db;
+                private DatabaseInterface $db;
                 private $minimumJoomlaVersion = '4.4';
                 private $maximumJoomlaVersion = '5.1.999';
                 private $minimumPHPVersion    = '8.1';
@@ -91,15 +90,6 @@ return new class () implements
                             return false;
                         }
 
-                        // Check for the maximum Joomla version before continuing
-                        if (version_compare(JVERSION, $this->maximumJoomlaVersion, '>')) {
-                            Log::add(
-                                Text::sprintf('JLIB_INSTALLER_MAXIMUM_JOOMLA', JVERSION),
-                                Log::ERROR,
-                                'jerror'
-                            );
-                            return false;
-                        }
                     }
                     return true;
                 }
