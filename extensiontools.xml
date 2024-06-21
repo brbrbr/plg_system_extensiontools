@@ -50,6 +50,6 @@
     </fields>
   </config>
   <updateservers>
-    <server type="extension" name="Extension Tools Update Site">https://raw.githubusercontent.com/brbrbr/plg_system_extensiontools/4.4/update.xml</server>
+    <server type="extension" name="Extension Tools Update Site">https://raw.githubusercontent.com/brbrbr/plg_system_extensiontools/5.1/update.xml</server>
   </updateservers>
 </extension>
