@@ -117,6 +117,8 @@ class ExtensionUpdateCommand extends AbstractCommand
         $this->addOption('url', null, InputOption::VALUE_REQUIRED, 'The url to the extension');
         $this->addOption('eid', null, InputOption::VALUE_REQUIRED, 'The extension ID');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Update all configured extensions');
+
+        $this->addOption('ignore-config', null, InputOption::VALUE_NONE, 'Ignore configuration update all pending');
         $this->addOption('email', null, InputOption::VALUE_NONE, 'Email results');
 
 
@@ -125,13 +127,15 @@ class ExtensionUpdateCommand extends AbstractCommand
 		\n  --path: The path on your local filesystem to the install package
 		\n  --url: The URL from where the install package should be downloaded
         \n  --eid: The Extension ID of the extension to be updated
-        \n  --all: Update all extension with pending update
+        \n  --all: Update allowed extensions with pending update. Respecting the version patterns from the plugin configuration
+        \n  --all --ignore-config: Update all extensions with pending update. This options ignores the patterns from the plugin configuration
         \n
-        \n --email: This will ommit the output and send an email to configured recipeints (plugin configuration). This will also email extentions that are not updated. So it works as an update notification as well.
+        \n --email: This will ommit the output and send an email to configured recipients (plugin configuration). This will also email extentions that are not updated. So it works as an update notification as well.
 		\nUsage:
 		\n  <info>php %command.full_name% --path=<path_to_file></info>
         \n  <info>php %command.full_name% --eid=<exention id></info>
 		\n  <info>php %command.full_name% --url=<url_to_file></info>
+        \n  The command will never update Joomla Core
         ";
 
         $this->setDescription('Install an extension from a URL, a path or using Joomla\'s Update System');
@@ -174,7 +178,7 @@ class ExtensionUpdateCommand extends AbstractCommand
 
 
 
-    private function updataAll(): bool
+    private function updataAll(bool $ignoreConfig=false): bool
     {
         $updates = $this->getAllowedUpdates();
         foreach ($updates as $update) {
@@ -399,9 +403,9 @@ class ExtensionUpdateCommand extends AbstractCommand
         $this->configureIO($input, $output);
         $this->email = $this->cliInput->getOption('email');
 
-        if ($this->cliInput->getOption('all')) {
+        if ($this->cliInput->getOption('all')  ) {
             $this->conditionalTitle('Update all Extensions');
-            $this->updataAll();
+            $this->updataAll((bool)$this->cliInput->getOption('ignore-config'));
             if ($this->email) {
                 $this->emailUpdateResults();
             } else {

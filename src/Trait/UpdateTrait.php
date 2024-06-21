@@ -133,7 +133,7 @@ trait UpdateTrait
 
         return false;
     }
-    private function getAllowedUpdates(): array
+    private function getAllowedUpdates(bool $ignoreConfig = false): array
     {
         $this->getUpdates(true);
         $uids = [];
@@ -144,7 +144,7 @@ trait UpdateTrait
                 continue;
             }
 
-            if (!$this->isAllowedToUpdate($update)) {
+            if (!$ignoreConfig && !$this->isAllowedToUpdate($update)) {
                 $this->skipInfo[] = $this->updateToRow($update);
                 continue;
             }
