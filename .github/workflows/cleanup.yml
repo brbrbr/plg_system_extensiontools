@@ -2,11 +2,7 @@ name: 'Release Cleanup workflow'
 
 on:
   workflow_dispatch:
-  release:
-    types: [created]  
-  push:
-  pull:
-
+  
 steps:
 - uses: actions/checkout@v3
 - uses: Nats-ji/delete-old-releases@v1
