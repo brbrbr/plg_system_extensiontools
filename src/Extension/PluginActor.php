@@ -27,6 +27,7 @@ use Joomla\Event;
 use Joomla\Event\SubscriberInterface;
 use Joomla\Filesystem\Path;
 use Joomla\Utilities\ArrayHelper;
+use Joomla\CMS\Log\Log;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -70,6 +71,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
+      
         $events = [
             'onError'                                             => ['onError', Event\Priority::MAX],
             \Joomla\Application\ApplicationEvents::BEFORE_EXECUTE => 'registerCommands',
@@ -293,6 +295,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         if (\count($updates) == 0) {
             return Status::OK;
         }
+        $params     = $event->getArgument('params');
+          //load early otherwise failures in Joomla's core will not be translated
+          $this->loadLanguages($params->language_override ?? '');
         $app = $this->getApplication();
         //  $app->getInput()->set('ignoreMessages',false);
         $mvcFactory        = $app->bootComponent('com_installer')->getMVCFactory();
@@ -301,16 +306,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $model->update(array_keys($updates), $minimum_stability);
 
         // Load the parameters.
-        $params     = $event->getArgument('params');
+   
 
-        /*
-           * Load the appropriate language. We try to load English (UK), the current user's language and the forced
-           * language preference, in this order. This ensures that we'll never end up with untranslated strings in the
-           * update email which would make Joomla! seem bad. So, please, if you don't fully understand what the
-           * following code does DO NOT TOUCH IT. It makes the difference between a hobbyist CMS and a professional
-           * solution!
-           */
-        $this->loadLanguages($params->language_override ?? '');
+      
 
         $superUsers = $this->usersToEmail($params->recipients ?? []);
 
@@ -381,6 +379,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $this->logTask('check Extension Updates start', 'info');
         // Load the parameters.
         $params      = $event->getArgument('params');
+        //load early otherwise failures in Joomla's core will not be translated
+        $this->loadLanguages($params->language_override ?? '');
+
 
         $sendOnce    = (bool)($params->send_once ?? true);
 
@@ -402,7 +403,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $this->logTask('No Updates found', 'info');
             return Status::OK;
         }
-        $this->loadLanguages($params->language_override ?? '');
 
         $baseURL = Route::link('administrator', 'index.php?option=com_cpanel&view=cpanel&dashboard=system', xhtml: false, absolute: true);
 
@@ -451,7 +451,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 'extensionname' => $updateValue->name,
             ];
 
-            $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_SINGLE'), $extensionSubstitutions) . "\n";
+            $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_FOUND_SINGLE'), $extensionSubstitutions) . "\n";
         }
 
         $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_UPDATE_MAIL_FOOTER'), $baseSubstitutions);

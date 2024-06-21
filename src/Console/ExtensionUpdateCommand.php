@@ -183,7 +183,8 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         return true;
     }
-    private function updatesToMailRows($updates)
+
+    private function updatesToMailRows($updates,$text)
     {
         $body = [];
         foreach ($updates as $updateValue) {
@@ -195,7 +196,7 @@ class ExtensionUpdateCommand extends AbstractCommand
                 'extensionname' => $updateValue[1],
             ];
 
-            $body[] = $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_MAIL_SINGLE'), $extensionSubstitutions) . "\n";
+            $body[] = $this->replaceTags($text, $extensionSubstitutions) . "\n";
         }
         return $body;
     }
@@ -213,20 +214,20 @@ class ExtensionUpdateCommand extends AbstractCommand
         $body = [];
 
         if (\count($this->successInfo)) {
-            $body[] = '==== Successful updates:';
-            $body   = array_merge($body, $this->updatesToMailRows($this->successInfo));
+            $body[] = '+++++ Successful updates +++++';
+            $body   = array_merge($body, $this->updatesToMailRows($this->successInfo,Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_SUCCESS_SINGLE')));
         }
 
 
         if (\count($this->skipInfo)) {
             $body[] = '';
-            $body[] = '==== Skipped updates (auto update not allowed):';
-            $body   = array_merge($body, $this->updatesToMailRows($this->skipInfo));
+            $body[] = '====== Skipped updates (auto update not allowed) =====';
+            $body   = array_merge($body, $this->updatesToMailRows($this->skipInfo,Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_PENDING_SINGLE')));
         }
         if (\count($this->failInfo)) {
             $body[] = '';
-            $body[] = '==== Failed :';
-            $body   = array_merge($body, $this->updatesToMailRows($this->failInfo));
+            $body[] = '----- Failed Update -----';
+            $body   = array_merge($body, $this->updatesToMailRows($this->failInfo,Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_FAILED_SINGLE')));
         }
 
         $updateCount       = \count($body);
