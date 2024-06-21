@@ -1,0 +1,7 @@
+steps:
+- uses: actions/checkout@v3
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    keep-count: 2
+    keep-old-minor-releases: true
+    keep-old-minor-releases-by: 'major'ases-count: 1
