@@ -7,7 +7,7 @@ if [ ! -f "$EXTENSION_ELEMENT.xml" ]; then cd ..; fi
 if [ -f "$EXTENSION_ZIP_FILENAME" ]; then rm $EXTENSION_ZIP_FILENAME; fi
 
 sed -i -e "s/$PATTERN/$VERSION/g" $EXTENSION_ELEMENT.xml
-sed -i -e "s/$PATTERN/$VERSION/g" 51.sh
+sed -i -e "s/$PATTERN/$VERSION/g" 44.sh
 
 zip -r $EXTENSION_ZIP_FILENAME language/ "$EXTENSION_ELEMENT.xml"  services/ forms/ src/ script.php --quiet
 
