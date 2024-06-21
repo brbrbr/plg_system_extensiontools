@@ -177,10 +177,9 @@ class ExtensionUpdateCommand extends AbstractCommand
     }
 
 
-
     private function updataAll(bool $ignoreConfig=false): bool
     {
-        $updates = $this->getAllowedUpdates();
+        $updates = $this->getAllowedUpdates($ignoreConfig);
         foreach ($updates as $update) {
             //Let's do it one by one for some nice log
             $this->updateUID($update);
