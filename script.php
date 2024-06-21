@@ -90,6 +90,16 @@ return new class () implements
                             return false;
                         }
 
+                          // Check for the maximum Joomla version before continuing
+                          if (version_compare(JVERSION, $this->maximumJoomlaVersion, '>')) {
+                            Log::add(
+                                Text::sprintf('JLIB_INSTALLER_MAXIMUM_JOOMLA', JVERSION),
+                                Log::ERROR,
+                                'jerror'
+                            );
+                            return false;
+                        }
+
                     }
                     return true;
                 }
