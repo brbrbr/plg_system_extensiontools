@@ -2,7 +2,7 @@
 EXTENSION_ZIP_FILENAME="build/plg_system_extensiontools.zip"
 EXTENSION_ELEMENT="extensiontools"
 PATTERN="4\.4\.[0-9]\+"
-VERSION="4.4.5"
+VERSION="4.4.7"
 if [ ! -f "$EXTENSION_ELEMENT.xml" ]; then cd ..; fi
 if [ -f "$EXTENSION_ZIP_FILENAME" ]; then rm $EXTENSION_ZIP_FILENAME; fi
 
