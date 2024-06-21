@@ -145,7 +145,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $body[] =   Path::removeRoot($error?->getTraceAsString() ?? '');
         $body   = implode("\n", $body);
 
-
         return   $this->sendMail($superUsers, $subject, $body, 'onError');
     }
 
@@ -160,7 +159,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     {
         if ($this->NonCoreExtensionsWithUpdateSite === null) {
             $db    = $this->getDatabase();
-            $query = $db->createQuery();
+            $query = $db->getQuery(true);
 
             $query->select(
                 [
@@ -289,6 +288,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
     private function updateAllExtensions(ExecuteTaskEvent $event): int
     {
+
+
+
         $updates = $this->getAllowedUpdates();
         if (\count($updates) == 0) {
             return Status::OK;

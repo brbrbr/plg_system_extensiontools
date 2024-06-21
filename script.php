@@ -88,7 +88,6 @@ return new class () implements
                             );
                             return false;
                         }
-
                     }
                     return true;
                 }

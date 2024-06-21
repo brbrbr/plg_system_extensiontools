@@ -118,7 +118,7 @@ class Transient extends Table
     public function getHashMatch(string $itemId, string $sha1Hash): ?object
     {
         $db       = $this->_db;
-        $query    = $db->createQuery();
+        $query    = $db->getQuery(true);
         $query->select('*')
             ->from($db->quoteName('#__history'))
             ->where($db->quoteName('item_id') . ' = :item_id')
@@ -147,7 +147,7 @@ class Transient extends Table
         // Get the list of version_id values we want to save
         $db        = $this->_db;
         $itemId    = $this->item_id;
-        $query     = $db->createQuery();
+        $query     = $db->getQuery(true);
         $query->select($db->quoteName('version_id'))
             ->from($db->quoteName('#__history'))
             ->where($db->quoteName('item_id') . ' = :item_id')
@@ -162,7 +162,7 @@ class Transient extends Table
         // Don't process delete query unless we have at least the maximum allowed versions
         if (\count($idsToSave) === (int) $maxVersions) {
             // Delete any rows not in our list and and not flagged to keep forever.
-            $query = $db->createQuery()
+            $query = $db->getQuery(true)
                 ->delete($db->quoteName('#__history'))
                 ->where($db->quoteName('item_id') . ' = :item_id')
                 ->whereNotIn($db->quoteName('version_id'), $idsToSave)
