@@ -10,4 +10,4 @@ steps:
     token: ${{ secrets.GITHUB_TOKEN }}
     keep-count: 2
     keep-old-minor-releases: true
-    keep-old-minor-releases-by: 'major'ases-count: 1
+    keep-old-minor-releases-by: 'major'
