@@ -37,15 +37,13 @@
             </fieldset>
           </form>
         </field>
-         
-
-	<field name="language_override"  type="language" label="PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_DESC" default="" client="administrator">
-				<option value="">PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_NONE</option>
-			</field>      
-       <field name="emailonerror" type="radio" label="PLG_SYSTEM_EXTENSIONTOOLS_EMAILONERROR_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_EMAILONERROR_DESC" default="0" layout="joomla.form.field.radio.switcher" filter="integer">
-            <option value="0">JNo</option>
-            <option value="1">JYes</option>
-          </field>
+        <field name="language_override" type="language" label="PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_DESC" default="" client="administrator">
+          <option value="">PLG_SYSTEM_EXTENSIONTOOLS_LANGUAGE_OVERRIDE_NONE</option>
+        </field>
+        <field name="emailonerror" type="radio" label="PLG_SYSTEM_EXTENSIONTOOLS_EMAILONERROR_LBL" description="PLG_SYSTEM_EXTENSIONTOOLS_EMAILONERROR_DESC" default="0" layout="joomla.form.field.radio.switcher" filter="integer">
+          <option value="0">JNo</option>
+          <option value="1">JYes</option>
+        </field>
         <!-- a dummy is required otherwise you can't clear the allowedExtensions list-->
 
         <field name="d" type="hidden" value="dummy" multiple="true" required="false"/>
