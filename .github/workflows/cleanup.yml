@@ -2,6 +2,8 @@ name: 'Release Cleanup workflow'
 
 on:
   workflow_dispatch:
+  push:
+  release:
 
 jobs:
   my_first_job:
@@ -13,4 +15,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           keep-count: 1
           keep-old-minor-releases: true
-          keep-old-minor-releases-by: 'major'
+          keep-old-minor-releases-by: 'minor'
