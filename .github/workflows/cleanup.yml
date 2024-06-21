@@ -2,7 +2,6 @@ name: 'Release Cleanup workflow'
 
 on:
   workflow_dispatch:
-  push:
   release:
 
 jobs:
