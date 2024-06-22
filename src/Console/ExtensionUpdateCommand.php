@@ -162,7 +162,7 @@ class ExtensionUpdateCommand extends AbstractCommand
      *
      * @return boolean
      *
-     * @since __DEPLOY_VERSION__
+     * @since 5.1.8
      *
      * @throws \Exception
      */
@@ -202,7 +202,7 @@ class ExtensionUpdateCommand extends AbstractCommand
      *
      * @return boolean
      *
-     * @since __DEPLOY_VERSION__
+     * @since 5.1.8
      *
      * @throws \Exception
      */
@@ -233,7 +233,7 @@ class ExtensionUpdateCommand extends AbstractCommand
      * @return boolean
      *
      * @since 4.0.0
-     * @modified __DEPLOY_VERSION__
+     * @modified 5.1.8
      *
      * @throws \Exception
      */

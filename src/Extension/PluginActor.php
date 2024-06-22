@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @package  System.Extensiontools
+ * @package    plg_system_extensiontools
  * @version    5.1
- * @copyright  2024 Bram Brambring
- * @license    GNU General Public License version 3 or later;
+ * @copyright 2024 Bram Brambring (https://brambring.nl)
+ * @license   GNU General Public License version 3 or later;
  */
 
 namespace Brambring\Plugin\System\Extensiontools\Extension;

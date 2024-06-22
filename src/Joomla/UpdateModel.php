@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @package     Joomla.Administrator
+ * @package    plg_system_extensiontools
  * @subpackage  com_installer
  *
- * @copyright   (C) 2008 Open Source Matters, Inc. <https://www.joomla.org>
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @copyright 2024 Bram Brambring (https://brambring.nl)
+ * @license   GNU General Public License version 3 or later;
  *
  * This clone as the install function without setUserState
  */

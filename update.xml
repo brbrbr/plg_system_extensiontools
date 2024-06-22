@@ -1,24 +1,46 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <updates>
   <update>
     <name>System - Extension Tools</name>
-    <description>Extension Tool Plugin. Allows updating extensions from CLI and Scheduled Tasks. Joomla 5.1 Version</description>
+    <description>Extension Tool Plugin. Can send update notications for extensions. Allows updating extensions from CLI and Scheduled Tasks</description>
+    <element>extensiontools</element>
+    <type>plugin</type>
+    <client>site</client>
+    <version>5.1.8</version>
+    <sha256>a19b93ba3a2fcc5a245eb39b4dc1f2a51470c6c2c986b7c5090d5737d786c204</sha256>
+    <maintainer>Bram Brambring</maintainer>
+    <maintainerurl>https://brambring.nl</maintainerurl>
+    <section>-</section>
+    <folder>system</folder>
+    <infourl title="brambring.nl - Joomla Extensions - System - Extension Tools">https://github.com/brbrbr/plg_system_extensiontools</infourl>
+    <sha256>a19b93ba3a2fcc5a245eb39b4dc1f2a51470c6c2c986b7c5090d5737d786c204</sha256>
+    <downloads>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/mod_easylog/releases/download/5.1.8/plg_system_extensiontools.zip</downloadurl>
+    </downloads>
+    <tags>
+      <tag>stable</tag>
+    </tags>
+    <targetplatform name="joomla" version="5.1"/>
+  </update>
+  <update>
+    <name>System - Extension Tools</name>
+    <description>Extension Tool Plugin. Allows updating extensions from CLI and Scheduled Tasks - Joomla 4.4 - 5.1 Version</description>
     <element>extensiontools</element>
     <type>plugin</type>
     <folder>system</folder>
     <client>site</client>
-    <version>5.1.7</version>
+    <version>4.4.7</version>
     <infourl title="Extensiontools Plugin">https://github.com/brbrbr/plg_system_extensiontools</infourl>
     <downloads>
-      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.1.7/plg_system_extensiontools.zip</downloadurl>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/4.4.7/plg_system_extensiontools.zip</downloadurl>
     </downloads>
-    <sha512>24cde6a03b44976e95515a6ead105a2235f7318155eacd1dfe8d84f6388ccaa8aad7278005fa007050b43c2ab4ad562ee9b4c26865cddbe6f51d814f5a6b1658</sha512>
+    <sha512>a29c8fda8a28e0a6580fe08edb8dc81926e791b0ed58b2dcb314b88517f78f4680676c8757c582d433b2b17c99fa703452a08980f31f92eb5dd2571c16d6e364</sha512>
     <tags>
       <tag>stable</tag>
     </tags>
     <maintainer>Bram Brambring</maintainer>
     <maintainerurl>https://brokenlinkchecker.dev</maintainerurl>
     <php_minimum>8.1.0</php_minimum>
-    <targetplatform name="joomla" version="5.1"/>
+    <targetplatform name="joomla" version="(5.(0|1)|4.(4))"/>
   </update>
 </updates>
