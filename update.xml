@@ -7,13 +7,13 @@
     <type>plugin</type>
     <client>site</client>
     <version>4.4.8</version>
-    <sha256>1ef496f18ed59c8359b035d33cbbeeba0bedec9bda6b69d0454b3bd4ca108347</sha256>
+    <sha256>16b02d03cb66eab88477611873fe2189c8fa3adb2020a61a21d44067e2f8c84f</sha256>
     <maintainer>Bram Brambring</maintainer>
     <maintainerurl>https://brambring.nl</maintainerurl>
     <section>-</section>
     <folder>system</folder>
     <infourl title="brambring.nl - Joomla Extensions - System - Extension Tools">https://github.com/brbrbr/plg_system_extensiontools</infourl>
-    <sha256>1ef496f18ed59c8359b035d33cbbeeba0bedec9bda6b69d0454b3bd4ca108347</sha256>
+    <sha256>16b02d03cb66eab88477611873fe2189c8fa3adb2020a61a21d44067e2f8c84f</sha256>
     <downloads>
       <downloadurl type="full" format="zip">https://github.com/brbrbr/mod_easylog/releases/download/4.4.8/plg_system_extensiontools.zip</downloadurl>
     </downloads>
