@@ -7,13 +7,13 @@
     <type>plugin</type>
     <client>site</client>
     <version>4.4.8</version>
-    <sha256>16b02d03cb66eab88477611873fe2189c8fa3adb2020a61a21d44067e2f8c84f</sha256>
+    <sha256>009ab98f03366f98599ad7905efaa527f95b3d41e28a947ecb9b85685d03b4f2</sha256>
     <maintainer>Bram Brambring</maintainer>
     <maintainerurl>https://brambring.nl</maintainerurl>
     <section>-</section>
     <folder>system</folder>
     <infourl title="brambring.nl - Joomla Extensions - System - Extension Tools">https://github.com/brbrbr/plg_system_extensiontools</infourl>
-    <sha256>16b02d03cb66eab88477611873fe2189c8fa3adb2020a61a21d44067e2f8c84f</sha256>
+    <sha256>009ab98f03366f98599ad7905efaa527f95b3d41e28a947ecb9b85685d03b4f2</sha256>
     <downloads>
       <downloadurl type="full" format="zip">https://github.com/brbrbr/mod_easylog/releases/download/4.4.8/plg_system_extensiontools.zip</downloadurl>
     </downloads>
@@ -21,5 +21,27 @@
       <tag>stable</tag>
     </tags>
     <targetplatform name="joomla" version="(5.(0|1)|4.(4))"/>
+  </update>
+  <update>
+    <name>System - Extension Tools</name>
+    <description>Extension Tool Plugin. Can send update notications for extensions. Allows updating extensions from CLI and Scheduled Tasks</description>
+    <element>extensiontools</element>
+    <type>plugin</type>
+    <client>site</client>
+    <version>5.1.8</version>
+    <sha256>a19b93ba3a2fcc5a245eb39b4dc1f2a51470c6c2c986b7c5090d5737d786c204</sha256>
+    <maintainer>Bram Brambring</maintainer>
+    <maintainerurl>https://brambring.nl</maintainerurl>
+    <section>-</section>
+    <folder>system</folder>
+    <infourl title="brambring.nl - Joomla Extensions - System - Extension Tools">https://github.com/brbrbr/plg_system_extensiontools</infourl>
+    <sha256>a19b93ba3a2fcc5a245eb39b4dc1f2a51470c6c2c986b7c5090d5737d786c204</sha256>
+    <downloads>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/mod_easylog/releases/download/5.1.8/plg_system_extensiontools.zip</downloadurl>
+    </downloads>
+    <tags>
+      <tag>stable</tag>
+    </tags>
+    <targetplatform name="joomla" version="5.1"/>
   </update>
 </updates>
