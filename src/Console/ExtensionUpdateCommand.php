@@ -113,28 +113,41 @@ class ExtensionUpdateCommand extends AbstractCommand
      */
     protected function configure(): void
     {
-        $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'The path to the extension');
-        $this->addOption('url', null, InputOption::VALUE_REQUIRED, 'The url to the extension');
-        $this->addOption('eid', null, InputOption::VALUE_REQUIRED, 'The extension ID');
-        $this->addOption('all', null, InputOption::VALUE_NONE, 'Update all configured extensions');
+        $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'The path to the extension package or folder');
+        $this->addOption('folder', 'f', InputOption::VALUE_REQUIRED, 'The path to the extension folder');
+        $this->addOption('package', 'p', InputOption::VALUE_REQUIRED, 'The path to the extension package');
 
-        $this->addOption('ignore-config', null, InputOption::VALUE_NONE, 'Ignore configuration update all pending');
+
+        $this->addOption('url', 'u', InputOption::VALUE_REQUIRED, 'The url to the extension');
+        $this->addOption('eid', 'e', InputOption::VALUE_REQUIRED, 'The extension ID');
+        $this->addOption('all', 'a', InputOption::VALUE_NONE, 'Update all configured extensions');
+
+        $this->addOption('ignore-config', 'i', InputOption::VALUE_NONE, 'Ignore configuration update all pending');
         $this->addOption('email', null, InputOption::VALUE_NONE, 'Email results');
 
 
         $help = "<info>%command.name%</info> is used to install extensions
 		\nYou must provide one of the following options to the command:
-		\n  --path: The path on your local filesystem to the install package
+		\n  --package: The path on your local filesystem to the install package
+        \n  --folder: The path on your local filesystem to the unpacked package
 		\n  --url: The URL from where the install package should be downloaded
         \n  --eid: The Extension ID of the extension to be updated
         \n  --all: Update allowed extensions with pending update. Respecting the version patterns from the plugin configuration
         \n  --all --ignore-config: Update all extensions with pending update. This options ignores the patterns from the plugin configuration
         \n
-        \n --email: This will ommit the output and send an email to configured recipients (plugin configuration). This will also email extentions that are not updated. So it works as an update notification as well.
-		\nUsage:
-		\n  <info>php %command.full_name% --path=<path_to_file></info>
+        \n --email: This will ommit the output and send an email to configured recipients (plugin configuration). This will also email about extentions that are not updated. So it works as an update notification as well.
+		\nUsage long format:
+		\n  <info>php %command.full_name% --package=<path_to_packge_file></info>
+        \n  <info>php %command.full_name% --folder=<path_to_folder></info>
         \n  <info>php %command.full_name% --eid=<exention id></info>
 		\n  <info>php %command.full_name% --url=<url_to_file></info>
+        \n  <info>php %command.full_name% --all [--ignore-config]</info>
+        \nUsage short format:
+		\n  <info>php %command.full_name% -p <path_to_packge_file></info> 
+        \n  <info>php %command.full_name% -f <path_to_folder></info>
+        \n  <info>php %command.full_name% -e <exention id></info>
+		\n  <info>php %command.full_name% -u <url_to_file></info>
+        \n  <info>php %command.full_name% -a [-i]</info>
         \n  The command will never update Joomla Core
         ";
 
@@ -153,13 +166,18 @@ class ExtensionUpdateCommand extends AbstractCommand
      *
      * @throws \Exception
      */
-    public function processPathInstallation($path): bool
+    public function processPackageInstallation($path): bool
     {
         if (!file_exists($path)) {
             $this->ioStyle->warning('The file path specified does not exist.');
-
             return false;
         }
+
+        if (!is_file($path)) {
+            $this->ioStyle->warning('The file path specified is not a file');
+            return false;
+        }
+        $this->conditionalTitle('Update/Install Extension From Package');
 
         $tmpPath  = $this->getApplication()->get('tmp_path');
         $tmpPath .= '/' . basename($path);
@@ -177,7 +195,70 @@ class ExtensionUpdateCommand extends AbstractCommand
     }
 
 
-    private function updataAll(bool $ignoreConfig=false): bool
+    /**
+     * Used for installing extension from a path
+     *
+     * @param   string  $path  Path to the extension zip file
+     *
+     * @return boolean
+     *
+     * @since 4.0.0
+     *
+     * @throws \Exception
+     */
+    public function processFolderInstallation($path): bool
+    {
+        if (!file_exists($path)) {
+            $this->ioStyle->warning('The  path specified does not exist.');
+            return false;
+        }
+
+        if (!is_dir($path)) {
+            $this->ioStyle->warning('The  path specified is not a folder');
+            return false;
+        }
+        $this->conditionalTitle('Update/Install Extension From Folder');
+
+        $jInstaller = Installer::getInstance();
+        $result     = $jInstaller->install($path);
+
+        return $result;
+    }
+
+    /**
+     * Used for installing extension from a path
+     *
+     * @param   string  $path  Path to the extension zip file
+     *
+     * @return boolean
+     *
+     * @since 4.0.0
+     *
+     * @throws \Exception
+     */
+    public function processPathInstallation($path): bool
+    {
+        if (!file_exists($path)) {
+            $this->ioStyle->warning('The  path specified does not exist.');
+            return false;
+        }
+
+        if (is_dir($path)) {
+            return $this->processFolderInstallation($path);
+        }
+
+        if (is_file($path)) {
+            return $this->processPackageInstallation($path);
+        }
+
+        $this->ioStyle->warning('The  path specified neither file or folder');
+
+        return false;
+    }
+
+
+
+    private function updataAll(bool $ignoreConfig = false): bool
     {
         $updates = $this->getAllowedUpdates($ignoreConfig);
         foreach ($updates as $update) {
@@ -187,7 +268,7 @@ class ExtensionUpdateCommand extends AbstractCommand
         return true;
     }
 
-    private function updatesToMailRows($updates,$text)
+    private function updatesToMailRows($updates, $text)
     {
         $body = [];
         foreach ($updates as $updateValue) {
@@ -218,19 +299,19 @@ class ExtensionUpdateCommand extends AbstractCommand
 
         if (\count($this->successInfo)) {
             $body[] = '+++++ Successful updates +++++';
-            $body   = array_merge($body, $this->updatesToMailRows($this->successInfo,Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_SUCCESS_SINGLE')));
+            $body   = array_merge($body, $this->updatesToMailRows($this->successInfo, Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_SUCCESS_SINGLE')));
         }
 
 
         if (\count($this->skipInfo)) {
             $body[] = '';
             $body[] = '====== Skipped updates (auto update not allowed) =====';
-            $body   = array_merge($body, $this->updatesToMailRows($this->skipInfo,Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_PENDING_SINGLE')));
+            $body   = array_merge($body, $this->updatesToMailRows($this->skipInfo, Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_PENDING_SINGLE')));
         }
         if (\count($this->failInfo)) {
             $body[] = '';
             $body[] = '----- Failed Update -----';
-            $body   = array_merge($body, $this->updatesToMailRows($this->failInfo,Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_FAILED_SINGLE')));
+            $body   = array_merge($body, $this->updatesToMailRows($this->failInfo, Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_FAILED_SINGLE')));
         }
 
         $updateCount       = \count($body);
@@ -397,14 +478,16 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         $this->ioStyle->title($title);
     }
+
     protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
         $this->configureIO($input, $output);
         $this->email = $this->cliInput->getOption('email');
 
-        if ($this->cliInput->getOption('all')  ) {
+        if ($this->cliInput->getOption('all')) {
             $this->conditionalTitle('Update all Extensions');
             $this->updataAll((bool)$this->cliInput->getOption('ignore-config'));
+
             if ($this->email) {
                 $this->emailUpdateResults();
             } else {
@@ -415,9 +498,9 @@ class ExtensionUpdateCommand extends AbstractCommand
             return self::INSTALLATION_SUCCESSFUL;
         }
 
-        if ($path = $this->cliInput->getOption('path')) {
-            $this->conditionalTitle('Update/Install Extension From Path');
-            $result = $this->processPathInstallation($path);
+
+        if ($package = $this->cliInput->getOption('package')) {
+            $result = $this->processPackageInstallation($package);
 
             if (!$result) {
                 $this->ioStyle->error('Unable to install extension');
@@ -426,8 +509,32 @@ class ExtensionUpdateCommand extends AbstractCommand
             }
 
             $this->ioStyle->success('Extension installed successfully.');
+            return self::INSTALLATION_SUCCESSFUL;
+        }
 
 
+        if ($path = $this->cliInput->getOption('folder')) {
+            $result = $this->processFolderInstallation($path);
+
+            if (!$result) {
+                $this->ioStyle->error('Unable to install extension');
+
+                return self::INSTALLATION_FAILED;
+            }
+
+            $this->ioStyle->success('Extension installed successfully.');
+            return self::INSTALLATION_SUCCESSFUL;
+        }
+
+        if ($path = $this->cliInput->getOption('path')) {
+            $result = $this->processPathInstallation($path);
+
+            if (!$result) {
+                $this->ioStyle->error('Unable to install extension');
+                return self::INSTALLATION_FAILED;
+            }
+
+            $this->ioStyle->success('Extension installed successfully.');
             return self::INSTALLATION_SUCCESSFUL;
         }
 
@@ -437,20 +544,18 @@ class ExtensionUpdateCommand extends AbstractCommand
 
             if (!$result) {
                 $this->ioStyle->error('Unable to install extension');
-
                 return self::INSTALLATION_FAILED;
             }
 
             $this->ioStyle->success('Extension installed successfully.');
-
             return self::INSTALLATION_SUCCESSFUL;
         }
-
 
         if ($eid = (int)$this->cliInput->getOption('eid')) {
             $this->conditionalTitle('Update Extension Using Extension ID');
             $result = $this->processEIDInstallation($eid);
             $this->showUpdateResutls();
+
             if (!$result) {
                 $this->ioStyle->error('Unable to install extension');
 
@@ -458,11 +563,10 @@ class ExtensionUpdateCommand extends AbstractCommand
             }
 
             $this->ioStyle->success('Extension installed successfully.');
-
             return self::INSTALLATION_SUCCESSFUL;
         }
-        $this->ioStyle->error('Invalid argument supplied for command.');
 
+        $this->ioStyle->error('Invalid argument supplied for command.');
         return self::INSTALLATION_FAILED;
     }
 }
