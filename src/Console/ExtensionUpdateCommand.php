@@ -149,11 +149,11 @@ class ExtensionUpdateCommand extends AbstractCommand
      *
      * @return boolean
      *
-     * @since 4.0.0
+     * @since __DEPLOY_VERSION__
      *
      * @throws \Exception
      */
-    public function processPathInstallation($path): bool
+    public function processPackageInstallation(string $path): bool
     {
         if (!file_exists($path)) {
             $this->ioStyle->warning('The file path specified does not exist.');
@@ -177,7 +177,71 @@ class ExtensionUpdateCommand extends AbstractCommand
     }
 
 
-    private function updataAll(bool $ignoreConfig=false): bool
+    /**
+     * Used for installing extension from a path
+     *
+     * @param   string  $path  Path to the extension zip file
+     *
+     * @return boolean
+     *
+     * @since __DEPLOY_VERSION__
+     *
+     * @throws \Exception
+     */
+    public function processFolderInstallation(string $path): bool
+    {
+        if (!file_exists($path)) {
+            $this->ioStyle->warning('The  path specified does not exist.');
+            return false;
+        }
+
+        if (!is_dir($path)) {
+            $this->ioStyle->warning('The  path specified is not a folder');
+            return false;
+        }
+        $this->conditionalTitle('Update/Install Extension From Folder');
+
+        $jInstaller = Installer::getInstance();
+        $result     = $jInstaller->install($path);
+
+        return $result;
+    }
+
+    /**
+     * Used for installing extension from a path
+     *
+     * @param   string  $path  Path to the extension zip file
+     *
+     * @return boolean
+     *
+     * @since 4.0.0
+     * @modified __DEPLOY_VERSION__
+     *
+     * @throws \Exception
+     */
+    public function processPathInstallation(string $path): bool
+    {
+        if (!file_exists($path)) {
+            $this->ioStyle->warning('The  path specified does not exist.');
+            return false;
+        }
+
+        if (is_dir($path)) {
+            return $this->processFolderInstallation($path);
+        }
+
+        if (is_file($path)) {
+            return $this->processPackageInstallation($path);
+        }
+
+        $this->ioStyle->warning('The  path specified neither file or folder');
+
+        return false;
+    }
+
+
+
+    private function updataAll(bool $ignoreConfig = false): bool
     {
         $updates = $this->getAllowedUpdates($ignoreConfig);
         foreach ($updates as $update) {
