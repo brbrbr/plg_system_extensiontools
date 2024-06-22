@@ -162,11 +162,11 @@ class ExtensionUpdateCommand extends AbstractCommand
      *
      * @return boolean
      *
-     * @since 4.0.0
+     * @since __DEPLOY_VERSION__
      *
      * @throws \Exception
      */
-    public function processPackageInstallation($path): bool
+    public function processPackageInstallation(string $path): bool
     {
         if (!file_exists($path)) {
             $this->ioStyle->warning('The file path specified does not exist.');
@@ -202,11 +202,11 @@ class ExtensionUpdateCommand extends AbstractCommand
      *
      * @return boolean
      *
-     * @since 4.0.0
+     * @since __DEPLOY_VERSION__
      *
      * @throws \Exception
      */
-    public function processFolderInstallation($path): bool
+    public function processFolderInstallation(string $path): bool
     {
         if (!file_exists($path)) {
             $this->ioStyle->warning('The  path specified does not exist.');
@@ -233,10 +233,11 @@ class ExtensionUpdateCommand extends AbstractCommand
      * @return boolean
      *
      * @since 4.0.0
+     * @modified __DEPLOY_VERSION__
      *
      * @throws \Exception
      */
-    public function processPathInstallation($path): bool
+    public function processPathInstallation(string $path): bool
     {
         if (!file_exists($path)) {
             $this->ioStyle->warning('The  path specified does not exist.');
