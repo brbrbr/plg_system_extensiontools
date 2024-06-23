@@ -60,7 +60,7 @@ class UpdateModel extends JoomlaUpdateModel
 
             $app   = Factory::getApplication();
             $db    = $this->getDatabase();
-            $query = $db->getQuery(true)
+            $query = $db->createQuery
                 ->select('type')
                 ->from('#__update_sites')
                 ->where($db->quoteName('update_site_id') . ' = :id')

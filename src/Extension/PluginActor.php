@@ -159,7 +159,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     {
         if ($this->NonCoreExtensionsWithUpdateSite === null) {
             $db    = $this->getDatabase();
-            $query = $db->getQuery(true);
+            $query = $db->createQuery;
 
             $query->select(
                 [

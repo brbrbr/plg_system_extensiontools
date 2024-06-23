@@ -334,7 +334,7 @@ trait UpdateTrait
 
         // Get the user information for the Super Administrator users
         try {
-            $query = $db->getQuery(true)
+            $query = $db->createQuery
                 ->select($db->quoteName(['id', 'name', 'email']))
                 ->from($db->quoteName('#__users', 'u'))
                 ->join('INNER', $db->quoteName('#__user_usergroup_map', 'm'), $db->quoteName('u.id') . ' = ' . $db->quoteName('m.user_id'))
