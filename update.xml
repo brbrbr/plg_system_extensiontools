@@ -2,20 +2,19 @@
 <updates>
   <update>
     <name>System - Extension Tools</name>
-    <description>Extension Tool Plugin. Can send update notications for extensions. Allows updating extensions from CLI and Scheduled Tasks</description>
+    <description>Extension Tool Plugin. Can send update notifications for extensions. Allows updating extensions from CLI and Scheduled Tasks</description>
     <element>extensiontools</element>
     <type>plugin</type>
     <client>site</client>
-    <version>4.4.8</version>
-    <sha256>009ab98f03366f98599ad7905efaa527f95b3d41e28a947ecb9b85685d03b4f2</sha256>
+    <version>4.4.9</version>
+    <sha256>afcbb05eb5c60291412247392d350fe8613ae66c0c16bf9e79bce52c2caec9ea</sha256>
     <maintainer>Bram Brambring</maintainer>
     <maintainerurl>https://brambring.nl</maintainerurl>
     <section>-</section>
     <folder>system</folder>
     <infourl title="brambring.nl - Joomla Extensions - System - Extension Tools">https://github.com/brbrbr/plg_system_extensiontools</infourl>
-    <sha256>009ab98f03366f98599ad7905efaa527f95b3d41e28a947ecb9b85685d03b4f2</sha256>
     <downloads>
-      <downloadurl type="full" format="zip">https://github.com/brbrbr/mod_easylog/releases/download/4.4.8/plg_system_extensiontools.zip</downloadurl>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/mod_easylog/releases/download/4.4.9/plg_system_extensiontools.zip</downloadurl>
     </downloads>
     <tags>
       <tag>stable</tag>
