@@ -15,6 +15,7 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Event\ErrorEvent;
 use Joomla\CMS\Extension\ExtensionHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Router\Exception\RouteNotFoundException;
 use Joomla\CMS\Router\Route;
@@ -27,7 +28,6 @@ use Joomla\Event;
 use Joomla\Event\SubscriberInterface;
 use Joomla\Filesystem\Path;
 use Joomla\Utilities\ArrayHelper;
-use Joomla\CMS\Log\Log;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -71,7 +71,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-      
+
         $events = [
             'onError'                                             => ['onError', Event\Priority::MAX],
             \Joomla\Application\ApplicationEvents::BEFORE_EXECUTE => 'registerCommands',
@@ -159,7 +159,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     {
         if ($this->NonCoreExtensionsWithUpdateSite === null) {
             $db    = $this->getDatabase();
-            $query = $db->createQuery;
+            $query = $db->createQuery();
 
             $query->select(
                 [
@@ -296,8 +296,8 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             return Status::OK;
         }
         $params     = $event->getArgument('params');
-          //load early otherwise failures in Joomla's core will not be translated
-          $this->loadLanguages($params->language_override ?? '');
+        //load early otherwise failures in Joomla's core will not be translated
+        $this->loadLanguages($params->language_override ?? '');
         $app = $this->getApplication();
         //  $app->getInput()->set('ignoreMessages',false);
         $mvcFactory        = $app->bootComponent('com_installer')->getMVCFactory();
@@ -306,9 +306,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $model->update(array_keys($updates), $minimum_stability);
 
         // Load the parameters.
-   
 
-      
+
+
 
         $superUsers = $this->usersToEmail($params->recipients ?? []);
 
