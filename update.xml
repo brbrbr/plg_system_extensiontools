@@ -7,14 +7,14 @@
     <type>plugin</type>
     <client>site</client>
     <version>4.4.9</version>
-    <sha256>afcbb05eb5c60291412247392d350fe8613ae66c0c16bf9e79bce52c2caec9ea</sha256>
+    <sha256>a364e75a3773149cf3e638a99c79e5c92a8d4716469abbee8b319c23d2b080ff</sha256>
     <maintainer>Bram Brambring</maintainer>
     <maintainerurl>https://brambring.nl</maintainerurl>
     <section>-</section>
     <folder>system</folder>
     <infourl title="brambring.nl - Joomla Extensions - System - Extension Tools">https://github.com/brbrbr/plg_system_extensiontools</infourl>
     <downloads>
-      <downloadurl type="full" format="zip">https://github.com/brbrbr/mod_easylog/releases/download/4.4.9/plg_system_extensiontools.zip</downloadurl>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/4.4.9/plg_system_extensiontools.zip</downloadurl>
     </downloads>
     <tags>
       <tag>stable</tag>
@@ -23,20 +23,19 @@
   </update>
   <update>
     <name>System - Extension Tools</name>
-    <description>Extension Tool Plugin. Can send update notications for extensions. Allows updating extensions from CLI and Scheduled Tasks</description>
+    <description>Extension Tool Plugin. Can send update notifications for extensions. Allows updating extensions from CLI and Scheduled Tasks</description>
     <element>extensiontools</element>
     <type>plugin</type>
     <client>site</client>
-    <version>5.1.8</version>
-    <sha256>a19b93ba3a2fcc5a245eb39b4dc1f2a51470c6c2c986b7c5090d5737d786c204</sha256>
+    <version>5.1.9</version>
+    <sha256>5e463e6bca2360a3c38437bc3e0c81ec39d3eb6cb796b08aaa31e44a6216a1af</sha256>
     <maintainer>Bram Brambring</maintainer>
     <maintainerurl>https://brambring.nl</maintainerurl>
     <section>-</section>
     <folder>system</folder>
     <infourl title="brambring.nl - Joomla Extensions - System - Extension Tools">https://github.com/brbrbr/plg_system_extensiontools</infourl>
-    <sha256>a19b93ba3a2fcc5a245eb39b4dc1f2a51470c6c2c986b7c5090d5737d786c204</sha256>
     <downloads>
-      <downloadurl type="full" format="zip">https://github.com/brbrbr/mod_easylog/releases/download/5.1.8/plg_system_extensiontools.zip</downloadurl>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.1.9/plg_system_extensiontools.zip</downloadurl>
     </downloads>
     <tags>
       <tag>stable</tag>
