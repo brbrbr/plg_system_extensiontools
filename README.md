@@ -71,7 +71,7 @@ In the plugin settings you can configure email notification on (fatal) web error
 https://brokenlinkchecker.dev/extensions/extension-tools
 
 
-##Found a bug or suggestion for an enhancement?
+## Found a bug or suggestion for an enhancement?
 
 Feel free to submit an issue or pull request.
 
