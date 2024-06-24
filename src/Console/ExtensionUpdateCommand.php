@@ -30,6 +30,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Joomla\Filesystem\Folder;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -116,12 +117,9 @@ class ExtensionUpdateCommand extends AbstractCommand
         $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'The path to the extension package or folder');
         $this->addOption('folder', 'f', InputOption::VALUE_REQUIRED, 'The path to the extension folder');
         $this->addOption('package', 'p', InputOption::VALUE_REQUIRED, 'The path to the extension package');
-
-
         $this->addOption('url', 'u', InputOption::VALUE_REQUIRED, 'The url to the extension');
         $this->addOption('eid', 'e', InputOption::VALUE_REQUIRED, 'The extension ID');
         $this->addOption('all', 'a', InputOption::VALUE_NONE, 'Update all configured extensions');
-
         $this->addOption('ignore-config', 'i', InputOption::VALUE_NONE, 'Ignore configuration update all pending');
         $this->addOption('email', null, InputOption::VALUE_NONE, 'Email results');
 
@@ -179,8 +177,6 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         $this->conditionalTitle('Update/Install Extension From Package');
 
-        $tmpPath  = $this->getApplication()->get('tmp_path');
-        $tmpPath .= '/' . basename($path);
         $package  = InstallerHelper::unpack($path, true);
 
         if ($package['type'] === false) {
@@ -189,8 +185,14 @@ class ExtensionUpdateCommand extends AbstractCommand
 
         $jInstaller = Installer::getInstance();
         $result     = $jInstaller->install($package['extractdir']);
-        InstallerHelper::cleanupInstall($tmpPath, $package['extractdir']);
-
+     
+        $resultdir=$package['extractdir'];
+        if ($resultdir && is_dir($resultdir)) {
+            //InstallHelper::cleanupInstall is intented to delete the uploaded package as well.
+            //this command did not download the package so let's not delete it.
+            Folder::delete($resultdir);
+        }
+     
         return $result;
     }
 
