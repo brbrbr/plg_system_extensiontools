@@ -6,6 +6,7 @@
 - CLI
     - Update Extensions using the information from the update server, just as when using the **Administrator** → **Extensions: Update**. No hasle to find the download link or append licence information.
     - Auto update (configured) Extensions.
+    - Manual update/install using url, folder or package.
 
 
 ## Installation
@@ -68,3 +69,10 @@ Additional labels for pre-release and build metadata might be added as suffixes 
 In the plugin settings you can configure email notification on (fatal) web errors. 
 
 https://brokenlinkchecker.dev/extensions/extension-tools
+
+
+##Found a bug?
+
+Feel free to submit an issue or pull request.
+
+Too much hasle, use the [contact form](https://brokenlinkchecker.dev/contact)
