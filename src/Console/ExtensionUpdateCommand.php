@@ -25,12 +25,12 @@ use Joomla\CMS\Updater\Updater;
 use Joomla\Console\Command\AbstractCommand;
 use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Filesystem\Folder;
 use Joomla\Registry\Registry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Joomla\Filesystem\Folder;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -182,7 +182,7 @@ class ExtensionUpdateCommand extends AbstractCommand
         if ($package['type'] === false) {
             return false;
         }
-        
+
         $resultdir = $package['extractdir'];
         if ($resultdir && is_dir($resultdir)) {
             $jInstaller = Installer::getInstance();
@@ -485,7 +485,7 @@ class ExtensionUpdateCommand extends AbstractCommand
     protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
 
-     
+
         $this->configureIO($input, $output);
         $this->email = $this->cliInput->getOption('email');
 
