@@ -182,17 +182,17 @@ class ExtensionUpdateCommand extends AbstractCommand
         if ($package['type'] === false) {
             return false;
         }
-
-        $jInstaller = Installer::getInstance();
-        $result     = $jInstaller->install($package['extractdir']);
-     
-        $resultdir=$package['extractdir'];
+        
+        $resultdir = $package['extractdir'];
         if ($resultdir && is_dir($resultdir)) {
+            $jInstaller = Installer::getInstance();
+            $result     = $jInstaller->install($resultdir);
+
             //InstallHelper::cleanupInstall is intented to delete the uploaded package as well.
             //this command did not download the package so let's not delete it.
             Folder::delete($resultdir);
         }
-     
+
         return $result;
     }
 
@@ -327,7 +327,7 @@ class ExtensionUpdateCommand extends AbstractCommand
             'count'    => $updateCount,
         ];
 
-        array_unshift($body, $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_HEADER', $updateCount), $baseSubstitutions) . "\n\n");
+        array_unshift($body, $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_HEADER'), $baseSubstitutions) . "\n\n");
         $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_SUBJECT', $updateCount), $baseSubstitutions);
 
         $lists    = [];
@@ -484,6 +484,8 @@ class ExtensionUpdateCommand extends AbstractCommand
 
     protected function doExecute(InputInterface $input, OutputInterface $output): int
     {
+
+     
         $this->configureIO($input, $output);
         $this->email = $this->cliInput->getOption('email');
 
