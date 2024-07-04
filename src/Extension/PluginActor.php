@@ -150,6 +150,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
     public function registerCommands($event): void
     {
+
         $app = $event->getApplication();
         //     $app->addCommand(new CheckCommand());
         $app->addCommand(new ExtensionUpdateCommand());
@@ -307,9 +308,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
         // Load the parameters.
    
-
-      
-
         $superUsers = $this->usersToEmail($params->recipients ?? []);
 
         if (empty($superUsers)) {
