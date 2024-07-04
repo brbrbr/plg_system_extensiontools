@@ -7,7 +7,7 @@
     <type>plugin</type>
     <client>site</client>
     <version>5.1.11</version>
-    <sha256>f5f83a1f459ff73d0768c0a039f6d1adff22aec924244a7c88166c2ff6b73cb6</sha256>
+    <sha256>0fdcfd276f4d72296ef948d8ad561c0d35fabece97de1fcd8504f7730a1cbfdd</sha256>
     <maintainer>Bram Brambring</maintainer>
     <maintainerurl>https://brambring.nl</maintainerurl>
     <section>-</section>
