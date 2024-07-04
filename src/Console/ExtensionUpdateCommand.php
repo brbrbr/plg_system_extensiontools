@@ -298,26 +298,32 @@ class ExtensionUpdateCommand extends AbstractCommand
             $this->logTask('No recipients found', 'warning');
             return true;
         }
-        $body = [];
-
+        $body        = [];
+        $subjects    = [];
+        $updateCount = 0;
         if (\count($this->successInfo)) {
-            $body[] = '+++++ Successful updates +++++';
-            $body   = array_merge($body, $this->updatesToMailRows($this->successInfo, Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_SUCCESS_SINGLE')));
+            $updateCount += \count($this->successInfo);
+            $body[]     = Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_BODY_SUCCESS');
+            $body       = array_merge($body, $this->updatesToMailRows($this->successInfo, Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_SUCCESS_SINGLE')));
+            $subjects[] = Text::sprintf('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_SUBJECT_INSTALLED', \count($this->successInfo));
         }
-
 
         if (\count($this->skipInfo)) {
-            $body[] = '';
-            $body[] = '====== Skipped updates (auto update not allowed) =====';
-            $body   = array_merge($body, $this->updatesToMailRows($this->skipInfo, Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_PENDING_SINGLE')));
+            $updateCount += \count($this->skipInfo);
+            $body[]     = '';
+            $body[]     = Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_BODY_SKIPPED');
+            $body       = array_merge($body, $this->updatesToMailRows($this->skipInfo, Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_SKIPPED_SINGLE')));
+            $subjects[] = Text::sprintf('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_SUBJECT_SKIPPED', \count($this->skipInfo));
         }
         if (\count($this->failInfo)) {
-            $body[] = '';
-            $body[] = '----- Failed Update -----';
-            $body   = array_merge($body, $this->updatesToMailRows($this->failInfo, Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_FAILED_SINGLE')));
+            $updateCount += \count($this->failInfo);
+            $body[]     = '';
+            $body[]     = Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_BODY_FAILED');
+            $body       = array_merge($body, $this->updatesToMailRows($this->failInfo, Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATE_FAILED_SINGLE')));
+            $subjects[] = Text::sprintf('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_SUBJECT_FAILED', \count($this->failInfo));
         }
 
-        $updateCount       = \count($body);
+
         if ($updateCount == 0) {
             return;
         }
@@ -329,7 +335,7 @@ class ExtensionUpdateCommand extends AbstractCommand
 
         array_unshift($body, $this->replaceTags(Text::_('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_HEADER'), $baseSubstitutions) . "\n\n");
         $subject = $this->replaceTags(Text::plural('PLG_SYSTEM_EXTENSIONTOOLS_AUTOUPDATECLI_MAIL_SUBJECT', $updateCount), $baseSubstitutions);
-
+        $subject .= ' (' . join(', ', $subjects) . ')';
         $lists    = [];
         if (\is_callable([$app, 'getMessageQueue'])) {
             $messages = $app->getMessageQueue();

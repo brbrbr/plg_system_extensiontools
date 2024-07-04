@@ -15,7 +15,6 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Event\ErrorEvent;
 use Joomla\CMS\Extension\ExtensionHelper;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Router\Exception\RouteNotFoundException;
 use Joomla\CMS\Router\Route;
@@ -150,6 +149,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
     public function registerCommands($event): void
     {
+
         $app = $event->getApplication();
         //     $app->addCommand(new CheckCommand());
         $app->addCommand(new ExtensionUpdateCommand());
@@ -306,8 +306,6 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
         $model->update(array_keys($updates), $minimum_stability);
 
         // Load the parameters.
-
-
 
 
         $superUsers = $this->usersToEmail($params->recipients ?? []);
