@@ -6,7 +6,7 @@
     <element>extensiontools</element>
     <type>plugin</type>
     <client>site</client>
-    <version>5.1.10</version>
+    <version>5.1.11</version>
     <sha256>f5f83a1f459ff73d0768c0a039f6d1adff22aec924244a7c88166c2ff6b73cb6</sha256>
     <maintainer>Bram Brambring</maintainer>
     <maintainerurl>https://brambring.nl</maintainerurl>
@@ -14,7 +14,7 @@
     <folder>system</folder>
     <infourl title="brambring.nl - Joomla Extensions - System - Extension Tools">https://github.com/brbrbr/plg_system_extensiontools</infourl>
     <downloads>
-      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.1.10/plg_system_extensiontools.zip</downloadurl>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.1.11/plg_system_extensiontools.zip</downloadurl>
     </downloads>
     <tags>
       <tag>stable</tag>
