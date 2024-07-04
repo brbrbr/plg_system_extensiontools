@@ -2,7 +2,7 @@
 <extension type="plugin" group="system" method="upgrade">
   <name>plg_system_extensiontools</name>
   <author>Bram Brambring</author>
-  <creationDate>2024-06-27</creationDate>
+  <creationDate>2024-07-04</creationDate>
   <copyright>(C) 2024 Bram Brambring</copyright>
   <license>GNU General Public License version 3 or later</license>
   <authorEmail>bram@brambring.nl</authorEmail>
