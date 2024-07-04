@@ -1,0 +1,12 @@
+project_id_env: CROWDIN_BRBRBR_PROJECT_ID
+api_token_env: CROWDIN_BRBRBR_PERSONAL_TOKEN
+base_path: language/
+base_url: 'https://crowdin.com/project/plg_system_extensiontools'
+preserve_hierarchy: 1
+files:
+  - source: /en-GB/plg_system_extensiontools.sys.ini
+    translation: /%locale%/plg_system_extensiontools.sys.ini
+    update_option: update_as_unapproved
+  - source: /en-GB/plg_system_extensiontools.ini
+    translation: /%locale%/plg_system_extensiontools.ini
+    update_option: update_as_unapproved
