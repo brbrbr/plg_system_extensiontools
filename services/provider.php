@@ -4,7 +4,7 @@
  * @package    plg_system_extensiontools
  * @subpackage  System.Extensiontools
  * @version    24.02.01
- * @copyright 2024 Bram Brambring (https://brambring.nl)
+ * @copyright 2024  - 2025 Bram Brambring (https://brambring.nl)
  * @license   GNU General Public License version 3 or later;
  */
 

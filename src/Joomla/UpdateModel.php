@@ -4,7 +4,7 @@
  * @package    plg_system_extensiontools
  * @subpackage  com_installer
  *
- * @copyright 2024 Bram Brambring (https://brambring.nl)
+ * @copyright 2024  - 2025 Bram Brambring (https://brambring.nl)
  * @license   GNU General Public License version 3 or later;
  *
  * This clone as the install function without setUserState
