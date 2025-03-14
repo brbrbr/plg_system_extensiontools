@@ -262,7 +262,7 @@ trait UpdateTrait
         } catch (MailDisabledException | phpMailerException $exception) {
             try {
                 $this->logTask($exception->getMessage(), 'error');
-            } catch (\RuntimeException $exception) {
+            } catch (\RuntimeException) {
                 return Status::KNOCKOUT;
             }
         }
@@ -274,9 +274,7 @@ trait UpdateTrait
         if (!\is_array($recipients)) {
             $recipients = ArrayHelper::fromObject($recipients, false);
         }
-        $specificIds = array_map(function ($item) {
-            return $item->user;
-        }, $recipients);
+        $specificIds = array_map(fn($item) => $item->user, $recipients);
 
 
         $superUsers = [];
@@ -349,7 +347,7 @@ trait UpdateTrait
 
             $db->setQuery($query);
             $ret = $db->loadObjectList();
-        } catch (\Exception $exc) {
+        } catch (\Exception) {
             return $ret;
         }
 

@@ -102,9 +102,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
         $recipients = ArrayHelper::fromObject($this->params->get('recipients', []), false);
 
-        $specificIds = array_map(function ($item) {
-            return $item->user;
-        }, $recipients);
+        $specificIds = array_map(fn($item) => $item->user, $recipients);
 
         $this->loadLanguages($this->params->get('language_override', ''));
 
@@ -192,7 +190,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             $rows = $db->loadObjectList();
 
             foreach ($rows as $extension) {
-                $decode = json_decode($extension->manifest_cache);
+                $decode = json_decode((string) $extension->manifest_cache);
 
                 // Remove unused fields so they do not cause javascript errors during pre-update check
                 unset($decode->description);

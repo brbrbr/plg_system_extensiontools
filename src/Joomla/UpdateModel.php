@@ -129,11 +129,11 @@ class UpdateModel extends JoomlaUpdateModel
             return false;
         }
 
-        $url     = trim($update->downloadurl->_data);
+        $url     = trim((string) $update->downloadurl->_data);
         $sources = $update->get('downloadSources', []);
 
         if ($extra_query = $update->get('extra_query')) {
-            $url .= (strpos($url, '?') === false) ? '?' : '&amp;';
+            $url .= (!str_contains($url, '?')) ? '?' : '&amp;';
             $url .= $extra_query;
         }
 
@@ -141,10 +141,10 @@ class UpdateModel extends JoomlaUpdateModel
 
         while (!($p_file = InstallerHelper::downloadPackage($url)) && isset($sources[$mirror])) {
             $name = $sources[$mirror];
-            $url  = trim($name->url);
+            $url  = trim((string) $name->url);
 
             if ($extra_query) {
-                $url .= (strpos($url, '?') === false) ? '?' : '&amp;';
+                $url .= (!str_contains($url, '?')) ? '?' : '&amp;';
                 $url .= $extra_query;
             }
 
@@ -193,7 +193,7 @@ class UpdateModel extends JoomlaUpdateModel
             $app->enqueueMessage(
                 Text::sprintf(
                     'COM_INSTALLER_MSG_UPDATE_ERROR',
-                    Text::_('COM_INSTALLER_TYPE_TYPE_' . strtoupper($package['type']))
+                    Text::_('COM_INSTALLER_TYPE_TYPE_' . strtoupper((string) $package['type']))
                 ),
                 'error'
             );
@@ -203,7 +203,7 @@ class UpdateModel extends JoomlaUpdateModel
             $app->enqueueMessage(
                 Text::sprintf(
                     'COM_INSTALLER_MSG_UPDATE_SUCCESS',
-                    Text::_('COM_INSTALLER_TYPE_TYPE_' . strtoupper($package['type']))
+                    Text::_('COM_INSTALLER_TYPE_TYPE_' . strtoupper((string) $package['type']))
                 ),
                 'success'
             );
