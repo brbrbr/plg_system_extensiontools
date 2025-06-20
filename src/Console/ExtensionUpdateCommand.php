@@ -86,6 +86,20 @@ class ExtensionUpdateCommand extends AbstractCommand
     public const INSTALLATION_SUCCESSFUL = 0;
 
     /**
+     * Command constructor.
+     *
+     * @param   DatabaseInterface  $db  The database
+     *
+     * @since   5.1.15
+     */
+    public function __construct(DatabaseInterface $db)
+    {
+        parent::__construct();
+
+        $this->setDatabase($db);
+    }
+
+    /**
      * Configures the IO
      *
      * @param   InputInterface   $input   Console Input
@@ -185,7 +199,8 @@ class ExtensionUpdateCommand extends AbstractCommand
 
         $resultdir = $package['extractdir'];
         if ($resultdir && is_dir($resultdir)) {
-            $jInstaller = Installer::getInstance();
+            $jInstaller = new Installer();
+            $jInstaller->setDatabase($this->getDatabase());
             $result     = $jInstaller->install($resultdir);
 
             //InstallHelper::cleanupInstall is intented to delete the uploaded package as well.
@@ -221,7 +236,8 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         $this->conditionalTitle('Update/Install Extension From Folder');
 
-        $jInstaller = Installer::getInstance();
+        $jInstaller = new Installer();
+        $jInstaller->setDatabase($this->getDatabase());
         $result     = $jInstaller->install($path);
 
         return $result;
@@ -463,6 +479,7 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
 
         $jInstaller = new Installer();
+        $jInstaller->setDatabase($this->getDatabase());
         $result     = $jInstaller->install($package['extractdir']);
         InstallerHelper::cleanupInstall($path, $package['extractdir']);
         return $result;

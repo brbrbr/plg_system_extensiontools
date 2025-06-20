@@ -149,8 +149,10 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     {
 
         $app = $event->getApplication();
+        $db = $this->getDatabase();
+
         //     $app->addCommand(new CheckCommand());
-        $app->addCommand(new ExtensionUpdateCommand());
+        $app->addCommand(new ExtensionUpdateCommand($db));
     }
 
     public function getNonCoreExtensionsWithUpdateSite()
