@@ -38,9 +38,9 @@ return new class () implements ServiceProviderInterface {
             PluginInterface::class,
             function (Container $container) {
 
-                $dispatcher = $container->get(DispatcherInterface::class);
+              
                 $plugin     = new PluginActor(
-                    $dispatcher,
+                 
                     (array) PluginHelper::getPlugin('system', 'extensiontools')
                 );
                 $plugin->setApplication(Factory::getApplication());
