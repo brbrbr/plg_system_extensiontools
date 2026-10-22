@@ -31,6 +31,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Throwable;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -201,11 +202,18 @@ class ExtensionUpdateCommand extends AbstractCommand
         if ($resultdir && is_dir($resultdir)) {
             $jInstaller = new Installer();
             $jInstaller->setDatabase($this->getDatabase());
-            $result     = $jInstaller->install($resultdir);
+            try {
+                $result     = $jInstaller->install($resultdir);
+            } catch (Throwable $e) {
+                $this->ioStyle->error($e->getMessage());
+                $result = false;
+            }
 
             //InstallHelper::cleanupInstall is intented to delete the uploaded package as well.
             //this command did not download the package so let's not delete it.
             Folder::delete($resultdir);
+        } else {
+            $result = false;
         }
 
         return $result;
