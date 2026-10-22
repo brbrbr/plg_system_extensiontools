@@ -52,7 +52,7 @@ trait UpdateTrait
         $this->getUpdates();
         foreach ($this->updateList as $update) {
             if ($update->{$field} == $value) {
-                if ($this->isJoomlaCore((string)$update->extension_id)) {
+                if ($this->isJoomlaCore($update->extension_id)) {
                     $this->ioStyle->error('Use core:update to update Joomla! Core');
                     return false;
                 }
@@ -63,7 +63,7 @@ trait UpdateTrait
         return false;
     }
 
-    private function isJoomlaCore(string $eid): bool
+    private function isJoomlaCore(int|string $eid): bool
     {
         // $coreEid = ExtensionHelper::getExtensionRecord('joomla', 'file')->extension_id;
         //retrun $coreEid == $eid
