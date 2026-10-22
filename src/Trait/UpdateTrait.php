@@ -52,7 +52,7 @@ trait UpdateTrait
         $this->getUpdates();
         foreach ($this->updateList as $update) {
             if ($update->{$field} == $value) {
-                if ($this->isJoomlaCore($update->extension_id)) {
+                if ($this->isJoomlaCore((string)$update->extension_id)) {
                     $this->ioStyle->error('Use core:update to update Joomla! Core');
                     return false;
                 }
@@ -80,11 +80,11 @@ trait UpdateTrait
             $this->allowedExtension['minor'] = $this->params->get('allowedMinor', []);
             $this->allowedExtension['patch'] = $this->params->get('allowedPatch', []);
             if (
-                \count($this->allowedExtension['all']) == 0
+                \count($this->allowedExtension['all'] ?? []) == 0
                 &&
-                \count($this->allowedExtension['minor']) == 0
+                \count($this->allowedExtension['minor'] ?? []) == 0
                 &&
-                \count($this->allowedExtension['patch']) == 0
+                \count($this->allowedExtension['patch'] ?? []) == 0
             ) {
                 $this->getApplication()->enqueueMessage('No extensions allowed for automatic updates', 'warning');
                 return false;
@@ -160,7 +160,7 @@ trait UpdateTrait
         if ($this->updateList === null) {
             $this->getApplication()->getLanguage()->load('com_installer', JPATH_ADMINISTRATOR, null, true, true);
             // Find updates.
-            /** @var UpdateModel $model */
+
             $model = $this->getApplication()->bootComponent('com_installer')
                 ->getMVCFactory()->createModel('Update', 'Administrator', ['ignore_request' => true]);
 
@@ -175,6 +175,11 @@ trait UpdateTrait
         return  $this->updateList;
     }
 
+    /**
+     * convert object to custom array
+     * @param object $update
+     */
+
     private function updateToRow($update): array
     {
         return    [
@@ -188,7 +193,9 @@ trait UpdateTrait
         ];
     }
 
-
+    /**
+     * @param mixed $forcedLanguage
+     */
 
     private function loadLanguages($forcedLanguage)
     {
@@ -216,6 +223,14 @@ trait UpdateTrait
             $jLanguage->load('plg_system_extensiontools', JPATH_ADMINISTRATOR, $forcedLanguage, true, false);
         }
     }
+    /**
+     * @param array $superUsers
+     * @param string $subject
+     * @param string $body
+     * @param bool|string $sendOnce
+     *
+     * @return int
+     */
 
     private function sendMail($superUsers, $subject, $body, string | bool $sendOnce = false): int
     {

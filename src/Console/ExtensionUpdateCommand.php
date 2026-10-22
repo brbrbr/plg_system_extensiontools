@@ -201,7 +201,6 @@ class ExtensionUpdateCommand extends AbstractCommand
 
         $resultdir = $package['extractdir'];
         if ($resultdir && is_dir($resultdir)) {
-
             $result     =  $this->runInstall($resultdir);
             //InstallHelper::cleanupInstall is intented to delete the uploaded package as well.
             //this command did not download the package so let's not delete it.
@@ -290,6 +289,10 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         return true;
     }
+    /**
+     * @param array $updates
+     * @param string $text
+     */
 
     private function updatesToMailRows($updates, $text)
     {
@@ -399,9 +402,10 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
     }
 
-    /*
-    * Single update
-    */
+    /**
+     * Single update
+     * @param object $update
+     */
 
     private function updateUID($update): bool
     {
@@ -442,7 +446,7 @@ class ExtensionUpdateCommand extends AbstractCommand
         Factory::$application = $CLIApp;
 */
 
-        return $result;
+        return (bool)$result;
     }
 
 
@@ -501,18 +505,13 @@ class ExtensionUpdateCommand extends AbstractCommand
     }
 
     /**
-     * Internal function to execute the command.
+
+     * The input to inject into the command.
+     * @param   string  $title  The output to inject into the command.
      *
-     * @param   InputInterface   $input   The input to inject into the command.
-     * @param   OutputInterface  $output  The output to inject into the command.
-     *
-     * @return  integer  The command exit code
-     *
-     * @throws \Exception
-     * @since   4.0.0
      */
 
-    protected function conditionalTitle($title)
+    protected function conditionalTitle(string $title)
     {
         if ($this->email) {
             return;
