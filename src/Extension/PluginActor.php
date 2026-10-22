@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @package    plg_system_extensiontools
  * @version    5.1
@@ -48,7 +50,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
      * @var string[]
      * @since 1.0.0
      */
-    private const TASKS_MAP = [
+    private const array TASKS_MAP = [
         'update.extensions' => [
             'langConstPrefix' => 'PLG_SYSTEM_EXTENSIONTOOLS_SEND',
             'method'          => 'checkExtensionUpdates',
@@ -102,7 +104,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
 
         $recipients = ArrayHelper::fromObject($this->params->get('recipients', []), false);
 
-        $specificIds = array_map(fn($item) => $item->user, $recipients);
+        $specificIds = array_map(fn ($item) => $item->user, $recipients);
 
         $this->loadLanguages($this->params->get('language_override', ''));
 
@@ -149,7 +151,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
     {
 
         $app = $event->getApplication();
-        $db = $this->getDatabase();
+        $db  = $this->getDatabase();
 
         //     $app->addCommand(new CheckCommand());
         $app->addCommand(new ExtensionUpdateCommand($db));
@@ -195,9 +197,9 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
                 $decode = json_decode((string) $extension->manifest_cache);
 
                 // Remove unused fields so they do not cause javascript errors during pre-update check
-                unset($decode->description);
-                unset($decode->copyright);
-                unset($decode->creationDate);
+                unset($decode->description, $decode->copyright, $decode->creationDate);
+
+
 
                 $this->translateExtensionName($extension);
                 $extension->version
@@ -342,7 +344,7 @@ final class PluginActor extends CMSPlugin implements SubscriberInterface
             // Build the sorted messages list
             if (\is_array($messages) && \count($messages)) {
                 foreach ($messages as $message) {
-                    if (isset($message['type']) && isset($message['message'])) {
+                    if (isset($message['type'], $message['message'])) {
                         $lists[$message['type']][] = $message['message'];
                     }
                 }

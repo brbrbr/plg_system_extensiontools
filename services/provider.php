@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @package    plg_system_extensiontools
  * @subpackage  System.Extensiontools
@@ -19,7 +21,6 @@ use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\Database\DatabaseInterface;
 use Joomla\DI\Container;
 use Joomla\DI\ServiceProviderInterface;
-use Joomla\Event\DispatcherInterface;
 
 return new class () implements ServiceProviderInterface {
     /**
@@ -38,9 +39,8 @@ return new class () implements ServiceProviderInterface {
             PluginInterface::class,
             function (Container $container) {
 
-              
+
                 $plugin     = new PluginActor(
-                 
                     (array) PluginHelper::getPlugin('system', 'extensiontools')
                 );
                 $plugin->setApplication(Factory::getApplication());

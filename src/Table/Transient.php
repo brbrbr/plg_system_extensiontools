@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Joomla! Content Management System
  *
@@ -81,9 +83,7 @@ class Transient extends Table
         $versionData           = $this->version_data ?? '';
         $this->character_count =  \strlen($versionData);
 
-        if (!isset($this->sha1_hash)) {
-            $this->sha1_hash = $this->getSha1($this->version_data);
-        }
+        $this->sha1_hash ??= $this->getSha1($this->version_data);
         // Modify author and date only when not toggling Keep Forever
         $this->save_date =  Factory::getDate()->toSql();
         return parent::store($updateNulls);

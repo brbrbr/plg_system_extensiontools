@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Based On libraries/src/Console/ExtensionInstallCommand.php
  * from the Joomla! Content Management System
@@ -274,7 +276,7 @@ trait UpdateTrait
         if (!\is_array($recipients)) {
             $recipients = ArrayHelper::fromObject($recipients, false);
         }
-        $specificIds = array_map(fn($item) => $item->user, $recipients);
+        $specificIds = array_map(fn ($item) => $item->user, $recipients);
 
 
         $superUsers = [];
@@ -325,7 +327,7 @@ trait UpdateTrait
             if (empty($groups)) {
                 return $ret;
             }
-        } catch (\Exception $exc) {
+        } catch (\Exception) {
             return $ret;
         }
 
@@ -369,9 +371,7 @@ trait UpdateTrait
     {
         foreach ($tags as $key => $value) {
             // If the value is NULL, replace with an empty string. NULL itself throws notices
-            if (\is_null($value)) {
-                $value = '';
-            }
+            $value ??= '';
 
             if (\is_array($value)) {
                 $matches = [];

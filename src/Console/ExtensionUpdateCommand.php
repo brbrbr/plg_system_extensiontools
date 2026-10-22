@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Based On libraries/src/Console/ExtensionInstallCommand.php
  * from the Joomla! Content Management System
@@ -31,7 +33,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Throwable;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -204,7 +205,7 @@ class ExtensionUpdateCommand extends AbstractCommand
             $jInstaller->setDatabase($this->getDatabase());
             try {
                 $result     = $jInstaller->install($resultdir);
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 $this->ioStyle->error($e->getMessage());
                 $result = false;
             }
@@ -366,7 +367,7 @@ class ExtensionUpdateCommand extends AbstractCommand
             // Build the sorted messages list
             if (\is_array($messages) && \count($messages)) {
                 foreach ($messages as $message) {
-                    if (isset($message['type']) && isset($message['message'])) {
+                    if (isset($message['type'], $message['message'])) {
                         $lists[$message['type']][] = $message['message'];
                     }
                 }

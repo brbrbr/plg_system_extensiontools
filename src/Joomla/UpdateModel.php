@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @package    plg_system_extensiontools
  * @subpackage  com_installer
