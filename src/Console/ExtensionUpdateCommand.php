@@ -201,15 +201,8 @@ class ExtensionUpdateCommand extends AbstractCommand
 
         $resultdir = $package['extractdir'];
         if ($resultdir && is_dir($resultdir)) {
-            $jInstaller = new Installer();
-            $jInstaller->setDatabase($this->getDatabase());
-            try {
-                $result     = $jInstaller->install($resultdir);
-            } catch (\Throwable $e) {
-                $this->ioStyle->error($e->getMessage());
-                $result = false;
-            }
 
+            $result     =  $this->runInstall($resultdir);
             //InstallHelper::cleanupInstall is intented to delete the uploaded package as well.
             //this command did not download the package so let's not delete it.
             Folder::delete($resultdir);
@@ -245,9 +238,11 @@ class ExtensionUpdateCommand extends AbstractCommand
         }
         $this->conditionalTitle('Update/Install Extension From Folder');
 
-        $jInstaller = new Installer();
-        $jInstaller->setDatabase($this->getDatabase());
-        $result     = $jInstaller->install($path);
+
+
+
+        $result     =  $this->runInstall($path);
+
 
         return $result;
     }
@@ -487,10 +482,21 @@ class ExtensionUpdateCommand extends AbstractCommand
             return false;
         }
 
+
+        $result     = $this->runInstall($package['extractdir']);
+        InstallerHelper::cleanupInstall($path, $package['extractdir']);
+        return $result;
+    }
+    private function runInstall(string $path): bool
+    {
         $jInstaller = new Installer();
         $jInstaller->setDatabase($this->getDatabase());
-        $result     = $jInstaller->install($package['extractdir']);
-        InstallerHelper::cleanupInstall($path, $package['extractdir']);
+        try {
+            $result     = $jInstaller->install($path);
+        } catch (\Throwable $e) {
+            $this->ioStyle->error($e->getMessage());
+            $result = false;
+        }
         return $result;
     }
 
