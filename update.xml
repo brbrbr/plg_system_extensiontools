@@ -6,15 +6,15 @@
     <element>extensiontools</element>
     <type>plugin</type>
     <client>site</client>
-    <version>5.4.20</version>
-    <sha256>7c5d4187c6da5077a0ed22cdb2693acefb8a59a3fe308226b3652e5d4523d8f9</sha256>
+    <version>5.4.21</version>
+    <sha256>496ac9818c87bf0d7e2d181cc4ae5502f13402e067d26883aeacf74e0c63353d</sha256>
     <maintainer>Bram Brambring</maintainer>
     <maintainerurl>https://brambring.nl</maintainerurl>
     <section>-</section>
     <folder>system</folder>
     <infourl title="brambring.nl - Joomla Extensions - System - Extension Tools">https://github.com/brbrbr/plg_system_extensiontools</infourl>
     <downloads>
-      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.4.20/plg_system_extensiontools.zip</downloadurl>
+      <downloadurl type="full" format="zip">https://github.com/brbrbr/plg_system_extensiontools/releases/download/5.4.21/plg_system_extensiontools.zip</downloadurl>
     </downloads>
     <tags>
       <tag>stable</tag>
