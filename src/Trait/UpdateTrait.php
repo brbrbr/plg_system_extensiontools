@@ -382,7 +382,7 @@ trait UpdateTrait
      * @since  1.0.1
      */
 
-    protected function replaceTags(string $text, array $tags)
+    protected function replaceTags(string $text, array $tags) :string
     {
         foreach ($tags as $key => $value) {
             // If the value is NULL, replace with an empty string. NULL itself throws notices
@@ -410,7 +410,7 @@ trait UpdateTrait
                     }
                 }
             } else {
-                $text = str_replace('{' . strtoupper($key) . '}', $value, $text);
+                $text = str_replace('{' . strtoupper($key) . '}', (string)$value, $text);
             }
         }
 
